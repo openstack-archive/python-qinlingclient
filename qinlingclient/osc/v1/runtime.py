@@ -19,10 +19,12 @@ from qinlingclient.osc.v1 import base
 
 class List(base.QinlingLister):
     """List available runtimes."""
+
     def _get_resources(self, parsed_args):
         client = self.app.client_manager.function_engine
 
         return client.runtimes.list(**base.get_filters(parsed_args))
 
     def _list_columns(self):
-        pass
+        return ('id', 'name', 'image', 'status', 'project_id', 'created_at',
+                'updated_at')

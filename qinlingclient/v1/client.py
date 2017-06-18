@@ -13,7 +13,8 @@
 #    limitations under the License.
 
 from qinlingclient.common import http
-from qinlingclient.v1 import runtimes
+from qinlingclient.v1 import function
+from qinlingclient.v1 import runtime
 
 
 class Client(object):
@@ -29,7 +30,7 @@ class Client(object):
         """Initialize a new client for the Qinling v1 API."""
         self.http_client = http._construct_http_client(*args, **kwargs)
 
-        self.runtimes = runtimes.RuntimeManager(self.http_client)
-        # self.functions = functions.FunctionManager(self.http_client)
+        self.runtimes = runtime.RuntimeManager(self.http_client)
+        self.functions = function.FunctionManager(self.http_client)
         # self.function_executions = function_executions.ExecutionManager(
         #     self.http_client)
