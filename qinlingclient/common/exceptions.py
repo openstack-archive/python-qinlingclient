@@ -210,3 +210,17 @@ class SSLCertificateError(BaseException):
 class NoUniqueMatch(ClientException):
     """Multiple entities found instead of one."""
     pass
+
+
+class QinlingClientException(Exception):
+    """Base Exception for Qinling client."""
+    message = "An unknown exception occurred"
+    code = "UNKNOWN_EXCEPTION"
+
+    def __str__(self):
+        return self.message
+
+    def __init__(self, message=message):
+        self.message = message
+        super(QinlingClientException, self).__init__(
+            '%s: %s' % (self.code, self.message))

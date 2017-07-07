@@ -12,6 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from oslo_serialization import jsonutils
+
 from qinlingclient.common import base
 
 
@@ -24,3 +26,25 @@ class FunctionManager(base.Manager):
 
     def list(self, **kwargs):
         return self._list("/v1/functions", response_key='functions')
+
+    def create(self, name, runtime, code, package, entry=None):
+        data = {
+            'name': name,
+            'runtime_id': runtime,
+            'code': jsonutils.dumps(code)
+        }
+        if entry:
+            data['entry'] = entry
+
+        response = self.http_client.request(
+            '/v1/functions',
+            'POST',
+            data=data,
+            files={'package': package}
+        )
+        body = jsonutils.loads(response.text)
+
+        return self.resource_class(self, body)
+
+    def delete(self, id):
+        self._delete('/v1/functions/%s' % id)

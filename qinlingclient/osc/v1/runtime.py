@@ -12,19 +12,67 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""Qinling v1 runtime action implementation"""
+from osc_lib.command import command
+from osc_lib import utils
 
 from qinlingclient.osc.v1 import base
 
 
 class List(base.QinlingLister):
-    """List available runtimes."""
+    columns = base.RUNTIME_COLUMNS
 
     def _get_resources(self, parsed_args):
         client = self.app.client_manager.function_engine
 
         return client.runtimes.list(**base.get_filters(parsed_args))
 
-    def _list_columns(self):
-        return ('id', 'name', 'image', 'status', 'project_id', 'created_at',
-                'updated_at')
+
+class Create(command.ShowOne):
+    columns = base.RUNTIME_COLUMNS
+
+    def get_parser(self, prog_name):
+        parser = super(Create, self).get_parser(prog_name)
+
+        parser.add_argument(
+            "name",
+            metavar='NAME',
+            help="New runtime name.",
+        )
+        parser.add_argument(
+            "image",
+            metavar='IMAGE',
+            help="Container image name used by runtime.",
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+
+        runtime = client.runtimes.create(
+            name=parsed_args.name,
+            image=parsed_args.image
+        )
+
+        return self.columns, utils.get_item_properties(runtime, self.columns)
+
+
+class Delete(base.QinlingDeleter):
+    def get_parser(self, prog_name):
+        parser = super(Delete, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'runtime',
+            nargs='+',
+            metavar='RUNTIME',
+            help='Id of runtime(s).'
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        self.delete = client.runtimes.delete
+        self.resource = 'runtime'
+
+        self.delete_resources(parsed_args.runtime)
