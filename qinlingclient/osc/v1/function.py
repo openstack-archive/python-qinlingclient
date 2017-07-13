@@ -116,8 +116,6 @@ class Create(command.ShowOne):
                 entry=parsed_args.entry,
             )
 
-        os.remove(zip_file)
-
         return self.columns, utils.get_item_properties(function, self.columns)
 
 
