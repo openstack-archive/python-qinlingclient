@@ -33,6 +33,11 @@ EXECUTION_COLUMNS = (
     'id', 'function_id', 'input', 'output', 'status', 'sync', 'created_at',
     'updated_at'
 )
+JOB_COLUMNS = (
+    'id', 'name', 'count', 'status', 'function_id', 'function_input',
+    'pattern', 'first_execution_time', 'next_execution_time', 'project_id',
+    'created_at', 'updated_at'
+)
 
 
 @six.add_metaclass(abc.ABCMeta)
