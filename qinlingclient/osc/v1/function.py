@@ -138,3 +138,19 @@ class Delete(base.QinlingDeleter):
         self.resource = 'function'
 
         self.delete_resources(parsed_args.function)
+
+
+class Show(command.ShowOne):
+    columns = base.FUNCTION_COLUMNS
+
+    def get_parser(self, prog_name):
+        parser = super(Show, self).get_parser(prog_name)
+        parser.add_argument('function', help='Function ID.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        function = client.functions.get(parsed_args.function)
+
+        return self.columns, utils.get_item_properties(function, self.columns)

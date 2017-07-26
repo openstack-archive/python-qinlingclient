@@ -48,3 +48,6 @@ class FunctionManager(base.Manager):
 
     def delete(self, id):
         self._delete('/v1/functions/%s' % id)
+
+    def get(self, id):
+        return self._get('/v1/functions/%s' % id)

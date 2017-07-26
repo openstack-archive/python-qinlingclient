@@ -31,3 +31,6 @@ class ExecutionManager(base.Manager):
 
     def delete(self, id):
         self._delete('/v1/executions/%s' % id)
+
+    def get(self, id):
+        return self._get('/v1/executions/%s' % id)

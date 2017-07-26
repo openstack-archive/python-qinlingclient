@@ -30,3 +30,6 @@ class JobManager(base.Manager):
 
     def delete(self, id):
         self._delete('/v1/jobs/%s' % id)
+
+    def get(self, id):
+        return self._get('/v1/jobs/%s' % id)

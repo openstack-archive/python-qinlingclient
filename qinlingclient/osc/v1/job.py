@@ -94,3 +94,19 @@ class Delete(base.QinlingDeleter):
         self.resource = 'job'
 
         self.delete_resources(parsed_args.job)
+
+
+class Show(command.ShowOne):
+    columns = base.JOB_COLUMNS
+
+    def get_parser(self, prog_name):
+        parser = super(Show, self).get_parser(prog_name)
+        parser.add_argument('job', help='Job ID.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        job = client.jobs.get(parsed_args.job)
+
+        return self.columns, osc_utils.get_item_properties(job, self.columns)

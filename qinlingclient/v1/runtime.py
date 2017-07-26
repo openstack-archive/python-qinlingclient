@@ -31,3 +31,6 @@ class RuntimeManager(base.Manager):
 
     def delete(self, id):
         self._delete('/v1/runtimes/%s' % id)
+
+    def get(self, id):
+        return self._get('/v1/runtimes/%s' % id)
