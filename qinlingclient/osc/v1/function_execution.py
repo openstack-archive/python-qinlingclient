@@ -40,16 +40,20 @@ class Create(command.ShowOne):
             help="Function ID.",
         )
         parser.add_argument(
-            "--sync",
-            type=bool,
-            metavar='SYNC',
-            default=True,
-            help="If the execution will be ran synchronously.",
-        )
-        parser.add_argument(
             "--input",
             metavar='INPUT',
             help="Input for the function.",
+        )
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument(
+            "--sync",
+            action='store_true',
+            help="Run execution synchronously."
+        )
+        group.add_argument(
+            "--async",
+            action='store_true',
+            help="Run execution asynchronously.",
         )
 
         return parser
