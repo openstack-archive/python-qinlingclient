@@ -33,3 +33,6 @@ class JobManager(base.Manager):
 
     def get(self, id):
         return self._get('/v1/jobs/%s' % id)
+
+    def update(self, id, **kwargs):
+        return self._update('/v1/jobs/%s' % id, kwargs)

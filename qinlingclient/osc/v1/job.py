@@ -110,3 +110,51 @@ class Show(command.ShowOne):
         job = client.jobs.get(parsed_args.job)
 
         return self.columns, osc_utils.get_item_properties(job, self.columns)
+
+
+class Update(command.ShowOne):
+    columns = base.JOB_COLUMNS
+
+    def get_parser(self, prog_name):
+        parser = super(Update, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'id',
+            help='Job ID.'
+        )
+        parser.add_argument(
+            "--name",
+            help="Job name."
+        )
+        parser.add_argument(
+            "--status",
+            choices=['running', 'paused', 'done', 'cancelled'],
+            help="Job status."
+        )
+        parser.add_argument(
+            "--next-execution-time",
+            help="The next execution time(UTC) for the job."
+        )
+        parser.add_argument(
+            "--pattern",
+            help="The cron pattern for job execution."
+        )
+        parser.add_argument(
+            "--function-input",
+            help="Function input."
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        job = client.jobs.update(
+            parsed_args.id,
+            name=parsed_args.name,
+            status=parsed_args.status,
+            pattern=parsed_args.pattern,
+            next_execution_time=parsed_args.next_execution_time,
+            function_input=parsed_args.function_input,
+        )
+
+        return self.columns, osc_utils.get_item_properties(job, self.columns)
