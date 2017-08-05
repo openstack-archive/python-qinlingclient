@@ -86,7 +86,7 @@ class QinlingDeleter(command.Command):
                 print(e)
 
         if failure_flag:
-            raise exceptions.QinlingClientException(error_msg)
+            raise exceptions.QinlingClientException(error_msg % self.resource)
 
 
 def cut(string, length=25):
