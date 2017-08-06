@@ -30,8 +30,8 @@ FUNCTION_COLUMNS = (
     'updated_at'
 )
 EXECUTION_COLUMNS = (
-    'id', 'function_id', 'input', 'output', 'status', 'sync', 'created_at',
-    'updated_at'
+    'id', 'function_id', 'description', 'input', 'output', 'status', 'sync',
+    'created_at', 'updated_at'
 )
 JOB_COLUMNS = (
     'id', 'name', 'count', 'status', 'function_id', 'function_input',
