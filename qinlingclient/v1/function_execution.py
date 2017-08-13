@@ -34,3 +34,6 @@ class ExecutionManager(base.Manager):
 
     def get(self, id):
         return self._get('/v1/executions/%s' % id)
+
+    def get_log(self, id):
+        return self._get('/v1/executions/%s/log' % id, return_raw=True)

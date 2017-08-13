@@ -109,3 +109,17 @@ class Show(command.ShowOne):
         execution = client.function_executions.get(parsed_args.execution)
 
         return self.columns, utils.get_item_properties(execution, self.columns)
+
+
+class LogShow(command.Command):
+    def get_parser(self, prog_name):
+        parser = super(LogShow, self).get_parser(prog_name)
+        parser.add_argument('execution', help='Execution ID.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        log = client.function_executions.get_log(parsed_args.execution)
+
+        self.app.stdout.write(log or "\n")
