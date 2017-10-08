@@ -22,8 +22,16 @@ class FunctionExecution(base.Resource):
 class ExecutionManager(base.Manager):
     resource_class = FunctionExecution
 
-    def list(self, **kwargs):
-        return self._list("/v1/executions", response_key='executions')
+    def list(self, function_id=None, **kwargs):
+        q_params = ''
+        if function_id:
+            q_params += 'function_id=%s' % function_id
+
+        url = "/v1/executions"
+        if q_params:
+            url += '?%s' % q_params
+
+        return self._list(url, response_key='executions')
 
     def create(self, function, sync=True, input={}):
         data = {'function_id': function, 'sync': sync, 'input': input}

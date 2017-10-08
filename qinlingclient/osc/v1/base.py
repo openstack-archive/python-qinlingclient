@@ -42,6 +42,19 @@ JOB_COLUMNS = (
 
 @six.add_metaclass(abc.ABCMeta)
 class QinlingLister(command.Lister):
+    def get_parser(self, prog_name):
+        parser = super(QinlingLister, self).get_parser(prog_name)
+        parser.add_argument(
+            '--filter',
+            dest='filters',
+            nargs='*',
+            help='Filters for query, can be repeated. Supported operands: eq, '
+                 'neq, in, nin, gt, gte, lt, lte, has. E.g. --filter '
+                 'function_id="neq:123"'
+        )
+
+        return parser
+
     @abc.abstractmethod
     def _get_resources(self, parsed_args):
         """Gets a list of API resources (e.g. using client)."""
