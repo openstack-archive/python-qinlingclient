@@ -27,14 +27,15 @@ class FunctionManager(base.Manager):
     def list(self, **kwargs):
         return self._list("/v1/functions", response_key='functions')
 
-    def create(self, name, runtime, code, package, entry=None):
+    def create(self, runtime, code, package, **kwargs):
         data = {
-            'name': name,
             'runtime_id': runtime,
             'code': jsonutils.dumps(code)
         }
-        if entry:
-            data['entry'] = entry
+
+        for k, v in kwargs.items():
+            if v is not None:
+                data.update({k: v})
 
         response = self.http_client.request(
             '/v1/functions',

@@ -39,11 +39,6 @@ class Create(command.ShowOne):
         parser = super(Create, self).get_parser(prog_name)
 
         parser.add_argument(
-            "name",
-            metavar='NAME',
-            help="New function name.",
-        )
-        parser.add_argument(
             "runtime",
             metavar='RUNTIME',
             help="Runtime ID.",
@@ -52,6 +47,10 @@ class Create(command.ShowOne):
             "code",
             metavar='CODE',
             help="Code definition.",
+        )
+        parser.add_argument(
+            "--name",
+            help="Function name.",
         )
         parser.add_argument(
             "--entry",
