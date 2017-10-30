@@ -25,8 +25,13 @@ class RuntimeManager(base.Manager):
     def list(self, **kwargs):
         return self._list("/v1/runtimes", response_key='runtimes')
 
-    def create(self, name, image):
-        data = {'name': name, 'image': image}
+    def create(self, image, name=None, description=None):
+        data = {'image': image}
+        if name:
+            data.update({'name': name})
+        if description:
+            data.update({'description': description})
+
         return self._create('/v1/runtimes', data)
 
     def delete(self, id):

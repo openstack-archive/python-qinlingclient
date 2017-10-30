@@ -34,14 +34,17 @@ class Create(command.ShowOne):
         parser = super(Create, self).get_parser(prog_name)
 
         parser.add_argument(
-            "name",
-            metavar='NAME',
-            help="New runtime name.",
-        )
-        parser.add_argument(
             "image",
             metavar='IMAGE',
             help="Container image name used by runtime.",
+        )
+        parser.add_argument(
+            "--name",
+            help="Runtime name.",
+        )
+        parser.add_argument(
+            "--description",
+            help="Runtime description.",
         )
 
         return parser
@@ -51,6 +54,7 @@ class Create(command.ShowOne):
 
         runtime = client.runtimes.create(
             name=parsed_args.name,
+            description=parsed_args.description,
             image=parsed_args.image
         )
 
