@@ -153,3 +153,40 @@ class Show(command.ShowOne):
         function = client.functions.get(parsed_args.function)
 
         return self.columns, utils.get_item_properties(function, self.columns)
+
+
+class Update(command.ShowOne):
+    columns = base.FUNCTION_COLUMNS
+
+    def get_parser(self, prog_name):
+        parser = super(Update, self).get_parser(prog_name)
+
+        parser.add_argument(
+            'id',
+            help='Function ID.'
+        )
+        parser.add_argument(
+            "--name",
+            help="Function name."
+        )
+        parser.add_argument(
+            "--description",
+            help="Function description."
+        )
+        parser.add_argument(
+            "--entry",
+            help="Function entry, in the format of <module_name>.<method_name>"
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        func = client.functions.update(
+            parsed_args.id,
+            name=parsed_args.name,
+            description=parsed_args.description,
+            entry=parsed_args.entry,
+        )
+
+        return self.columns, utils.get_item_properties(func, self.columns)
