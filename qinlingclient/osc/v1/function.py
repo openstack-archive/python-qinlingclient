@@ -17,7 +17,6 @@ import zipfile
 
 from osc_lib.command import command
 from osc_lib import utils
-from oslo_serialization import jsonutils
 
 from qinlingclient.common import exceptions
 from qinlingclient.osc.v1 import base
@@ -39,14 +38,14 @@ class Create(command.ShowOne):
         parser = super(Create, self).get_parser(prog_name)
 
         parser.add_argument(
-            "runtime",
-            metavar='RUNTIME',
-            help="Runtime ID.",
+            "--code-type",
+            choices=['package', 'swift', 'image'],
+            required=True,
+            help="Code type.",
         )
         parser.add_argument(
-            "code",
-            metavar='CODE',
-            help="Code definition.",
+            "--runtime",
+            help="Runtime ID.",
         )
         parser.add_argument(
             "--name",
@@ -54,11 +53,9 @@ class Create(command.ShowOne):
         )
         parser.add_argument(
             "--entry",
-            metavar="FUNCTION_ENTRY",
-            help="Function entry."
+            help="Function entry in the format of <module_name>.<method_name>"
         )
-        protected_group = parser.add_mutually_exclusive_group(required=True)
-        # TODO(kong): Take a look at the file type in argparse module.
+        protected_group = parser.add_mutually_exclusive_group(required=False)
         protected_group.add_argument(
             "--file",
             metavar="CODE_FILE_PATH",
@@ -69,49 +66,113 @@ class Create(command.ShowOne):
             metavar="CODE_PACKAGE_PATH",
             help="Code package zip file path."
         )
+        parser.add_argument(
+            "--container",
+            help="Container name in Swift.",
+        )
+        parser.add_argument(
+            "--object",
+            help="Object name in Swift.",
+        )
+        parser.add_argument(
+            "--image",
+            help="Image name in docker hub.",
+        )
 
         return parser
 
     def take_action(self, parsed_args):
-        zip_file = None
+        client = self.app.client_manager.function_engine
 
-        if parsed_args.file:
-            if not os.path.isfile(parsed_args.file):
+        if parsed_args.code_type == 'package':
+            zip_file = None
+
+            if not (parsed_args.file or parsed_args.package):
                 raise exceptions.QinlingClientException(
-                    'File %s not exist.' % parsed_args.file
+                    'Package or file needs to be specified.'
                 )
-
-            base_name, extention = os.path.splitext(parsed_args.file)
-            base_name = os.path.basename(base_name)
-            zip_file = os.path.join(
-                tempfile.gettempdir(),
-                '%s.zip' % base_name
-            )
-
-            zf = zipfile.ZipFile(zip_file, mode='w')
-            try:
-                # Use default compression mode, may change in future.
-                zf.write(
-                    parsed_args.file,
-                    '%s%s' % (base_name, extention),
-                    compress_type=zipfile.ZIP_STORED
-                )
-            finally:
-                zf.close()
-        if parsed_args.package:
-            if not zipfile.is_zipfile(parsed_args.package):
+            if not parsed_args.runtime:
                 raise exceptions.QinlingClientException(
-                    'Package %s is not a valid ZIP file.' % parsed_args.package
+                    'Runtime needs to be specified for package type function.'
                 )
-            zip_file = parsed_args.package
 
-        with open(zip_file, 'rb') as package:
-            client = self.app.client_manager.function_engine
+            if parsed_args.file:
+                if not os.path.isfile(parsed_args.file):
+                    raise exceptions.QinlingClientException(
+                        'File %s not exist.' % parsed_args.file
+                    )
+
+                base_name, extention = os.path.splitext(parsed_args.file)
+                base_name = os.path.basename(base_name)
+                zip_file = os.path.join(
+                    tempfile.gettempdir(),
+                    '%s.zip' % base_name
+                )
+
+                zf = zipfile.ZipFile(zip_file, mode='w')
+                try:
+                    # Use default compression mode, may change in future.
+                    zf.write(
+                        parsed_args.file,
+                        '%s%s' % (base_name, extention),
+                        compress_type=zipfile.ZIP_STORED
+                    )
+                finally:
+                    zf.close()
+            if parsed_args.package:
+                if not zipfile.is_zipfile(parsed_args.package):
+                    raise exceptions.QinlingClientException(
+                        'Package %s is not a valid ZIP file.' %
+                        parsed_args.package
+                    )
+                zip_file = parsed_args.package
+
+            with open(zip_file, 'rb') as package:
+                function = client.functions.create(
+                    name=parsed_args.name,
+                    runtime=parsed_args.runtime,
+                    code={"source": "package"},
+                    package=package,
+                    entry=parsed_args.entry,
+                )
+        elif parsed_args.code_type == 'swift':
+            if not (parsed_args.container and parsed_args.object):
+                raise exceptions.QinlingClientException(
+                    'Container name and object name need to be specified.'
+                )
+            if not parsed_args.runtime:
+                raise exceptions.QinlingClientException(
+                    'Runtime needs to be specified for package type function.'
+                )
+
+            code = {
+                "source": "swift",
+                "swift": {
+                    "container": parsed_args.container,
+                    "object": parsed_args.object
+                }
+            }
+
             function = client.functions.create(
                 name=parsed_args.name,
                 runtime=parsed_args.runtime,
-                code=jsonutils.loads(parsed_args.code),
-                package=package,
+                code=code,
+                entry=parsed_args.entry,
+            )
+        elif parsed_args.code_type == 'image':
+            if not parsed_args.image:
+                raise exceptions.QinlingClientException(
+                    'Image needs to be specified.'
+                )
+
+            code = {
+                "source": "image",
+                "image": parsed_args.image
+            }
+
+            function = client.functions.create(
+                name=parsed_args.name,
+                code=code,
                 entry=parsed_args.entry,
             )
 

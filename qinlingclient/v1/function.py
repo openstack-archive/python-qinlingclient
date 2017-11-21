@@ -27,7 +27,7 @@ class FunctionManager(base.Manager):
     def list(self, **kwargs):
         return self._list("/v1/functions", response_key='functions')
 
-    def create(self, runtime, code, package, **kwargs):
+    def create(self, code, runtime=None, package=None, **kwargs):
         data = {
             'runtime_id': runtime,
             'code': jsonutils.dumps(code)
@@ -37,11 +37,14 @@ class FunctionManager(base.Manager):
             if v is not None:
                 data.update({k: v})
 
+        params = {"data": data}
+        if package:
+            params.update({"files": {'package': package}})
+
         response = self.http_client.request(
             '/v1/functions',
             'POST',
-            data=data,
-            files={'package': package}
+            **params
         )
         body = jsonutils.loads(response.text)
 
