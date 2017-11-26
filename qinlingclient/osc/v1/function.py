@@ -22,6 +22,41 @@ from qinlingclient.common import exceptions
 from qinlingclient.osc.v1 import base
 
 
+def _get_package_file(package_path=None, file_path=None):
+    if package_path:
+        if not zipfile.is_zipfile(package_path):
+            raise exceptions.QinlingClientException(
+                'Package %s is not a valid ZIP file.' % package_path
+            )
+        return package_path
+
+    if file_path:
+        if not os.path.isfile(file_path):
+            raise exceptions.QinlingClientException(
+                'File %s not exist.' % file_path
+            )
+
+        base_name, extention = os.path.splitext(file_path)
+        base_name = os.path.basename(base_name)
+        zip_file = os.path.join(
+            tempfile.gettempdir(),
+            '%s.zip' % base_name
+        )
+
+        zf = zipfile.ZipFile(zip_file, mode='w')
+        try:
+            # Use default compression mode, may change in future.
+            zf.write(
+                file_path,
+                '%s%s' % (base_name, extention),
+                compress_type=zipfile.ZIP_STORED
+            )
+        finally:
+            zf.close()
+
+        return zip_file
+
+
 class List(base.QinlingLister):
     columns = base.FUNCTION_COLUMNS
 
@@ -85,8 +120,6 @@ class Create(command.ShowOne):
         client = self.app.client_manager.function_engine
 
         if parsed_args.code_type == 'package':
-            zip_file = None
-
             if not (parsed_args.file or parsed_args.package):
                 raise exceptions.QinlingClientException(
                     'Package or file needs to be specified.'
@@ -96,37 +129,7 @@ class Create(command.ShowOne):
                     'Runtime needs to be specified for package type function.'
                 )
 
-            if parsed_args.file:
-                if not os.path.isfile(parsed_args.file):
-                    raise exceptions.QinlingClientException(
-                        'File %s not exist.' % parsed_args.file
-                    )
-
-                base_name, extention = os.path.splitext(parsed_args.file)
-                base_name = os.path.basename(base_name)
-                zip_file = os.path.join(
-                    tempfile.gettempdir(),
-                    '%s.zip' % base_name
-                )
-
-                zf = zipfile.ZipFile(zip_file, mode='w')
-                try:
-                    # Use default compression mode, may change in future.
-                    zf.write(
-                        parsed_args.file,
-                        '%s%s' % (base_name, extention),
-                        compress_type=zipfile.ZIP_STORED
-                    )
-                finally:
-                    zf.close()
-            if parsed_args.package:
-                if not zipfile.is_zipfile(parsed_args.package):
-                    raise exceptions.QinlingClientException(
-                        'Package %s is not a valid ZIP file.' %
-                        parsed_args.package
-                    )
-                zip_file = parsed_args.package
-
+            zip_file = _get_package_file(parsed_args.package, parsed_args.file)
             with open(zip_file, 'rb') as package:
                 function = client.functions.create(
                     name=parsed_args.name,
@@ -236,18 +239,70 @@ class Update(command.ShowOne):
         )
         parser.add_argument(
             "--entry",
-            help="Function entry, in the format of <module_name>.<method_name>"
+            help="Function entry in the format of <module_name>.<method_name>"
+        )
+
+        package_group = parser.add_argument_group('package_group')
+        swift_group = parser.add_argument_group('swift_group')
+
+        group = package_group.add_mutually_exclusive_group()
+        group.add_argument(
+            "--file",
+            metavar="CODE_FILE_PATH",
+            help="Code file path."
+        )
+        group.add_argument(
+            "--package",
+            metavar="CODE_PACKAGE_PATH",
+            help="Code package zip file path."
+        )
+
+        swift_group.add_argument(
+            "--container",
+            help="Container name in Swift.",
+        )
+        swift_group.add_argument(
+            "--object",
+            help="Object name in Swift.",
         )
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
-        func = client.functions.update(
-            parsed_args.id,
-            name=parsed_args.name,
-            description=parsed_args.description,
-            entry=parsed_args.entry,
-        )
+        code = None
+        package = None
+        zip_file = None
+
+        if parsed_args.file or parsed_args.package:
+            code = {'source': 'package'}
+            zip_file = _get_package_file(parsed_args.package, parsed_args.file)
+        elif parsed_args.container or parsed_args.object:
+            code = {
+                'source': 'swift',
+                'swift': {
+                    'container': parsed_args.container,
+                    'object': parsed_args.object
+                }
+            }
+
+        if zip_file:
+            with open(zip_file, 'rb') as package:
+                func = client.functions.update(
+                    parsed_args.id,
+                    code=code,
+                    package=package,
+                    name=parsed_args.name,
+                    description=parsed_args.description,
+                    entry=parsed_args.entry,
+                )
+        else:
+            func = client.functions.update(
+                parsed_args.id,
+                code=code,
+                name=parsed_args.name,
+                description=parsed_args.description,
+                entry=parsed_args.entry,
+            )
 
         return self.columns, utils.get_item_properties(func, self.columns)

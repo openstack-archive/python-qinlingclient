@@ -56,5 +56,19 @@ class FunctionManager(base.Manager):
     def get(self, id):
         return self._get('/v1/functions/%s' % id)
 
-    def update(self, id, **kwargs):
-        return self._update('/v1/functions/%s' % id, kwargs)
+    def update(self, id, code=None, package=None, **kwargs):
+        if code:
+            kwargs.update(code)
+
+        params = {"data": kwargs}
+        if package:
+            params.update({"files": {'package': package}})
+
+        response = self.http_client.request(
+            '/v1/functions/%s' % id,
+            'PUT',
+            **params
+        )
+        body = jsonutils.loads(response.text)
+
+        return self.resource_class(self, body)
