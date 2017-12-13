@@ -25,7 +25,15 @@ class FunctionManager(base.Manager):
     resource_class = Function
 
     def list(self, **kwargs):
-        return self._list("/v1/functions", response_key='functions')
+        q_list = []
+        for key, value in kwargs.items():
+            q_list.append('%s=%s' % (key, value))
+        q_params = '&'.join(q_list)
+
+        url = '/v1/functions'
+        if q_params:
+            url += '?%s' % q_params
+        return self._list(url, response_key='functions')
 
     def create(self, code, runtime=None, package=None, **kwargs):
         data = {

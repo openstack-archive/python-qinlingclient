@@ -27,11 +27,11 @@ RUNTIME_COLUMNS = (
 )
 FUNCTION_COLUMNS = (
     'id', 'name', 'description', 'count', 'code', 'runtime_id', 'entry',
-    'created_at', 'updated_at'
+    'project_id', 'created_at', 'updated_at'
 )
 EXECUTION_COLUMNS = (
     'id', 'function_id', 'description', 'input', 'output', 'status', 'sync',
-    'created_at', 'updated_at'
+    'project_id', 'created_at', 'updated_at'
 )
 JOB_COLUMNS = (
     'id', 'name', 'count', 'status', 'function_id', 'function_input',
@@ -47,7 +47,7 @@ class QinlingLister(command.Lister):
         parser.add_argument(
             '--filter',
             dest='filters',
-            nargs='*',
+            action='append',
             help='Filters for query, can be repeated. Supported operands: eq, '
                  'neq, in, nin, gt, gte, lt, lte, has. E.g. --filter '
                  'function_id="neq:123"'
