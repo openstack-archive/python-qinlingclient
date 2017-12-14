@@ -20,6 +20,7 @@ from osc_lib import utils
 import six
 
 from qinlingclient.common import exceptions
+from qinlingclient.i18n import _
 
 RUNTIME_COLUMNS = (
     'id', 'name', 'image', 'status', 'description', 'project_id',
@@ -43,15 +44,19 @@ WORKER_COLUMNS = ('function_id', 'worker_name')
 
 @six.add_metaclass(abc.ABCMeta)
 class QinlingLister(command.Lister):
+    columns = ()
+
     def get_parser(self, prog_name):
         parser = super(QinlingLister, self).get_parser(prog_name)
         parser.add_argument(
             '--filter',
             dest='filters',
             action='append',
-            help='Filters for query, can be repeated. Supported operands: eq, '
-                 'neq, in, nin, gt, gte, lt, lte, has. E.g. --filter '
-                 'function_id="neq:123"'
+            help=_(
+                'Filters for resource query that can be repeated. Supported '
+                'operands: eq, neq, in, nin, gt, gte, lt, lte, has. '
+                'E.g. --filter key="neq:123". The available keys are {0}'
+            ).format(self.columns)
         )
 
         return parser
