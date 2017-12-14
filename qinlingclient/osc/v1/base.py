@@ -38,6 +38,7 @@ JOB_COLUMNS = (
     'pattern', 'first_execution_time', 'next_execution_time', 'project_id',
     'created_at', 'updated_at'
 )
+WORKER_COLUMNS = ('function_id', 'worker_name')
 
 
 @six.add_metaclass(abc.ABCMeta)

@@ -80,3 +80,9 @@ class FunctionManager(base.Manager):
         body = jsonutils.loads(response.text)
 
         return self.resource_class(self, body)
+
+    def detach(self, id):
+        return self.http_client.request(
+            '/v1/functions/%s/detach' % id,
+            'POST',
+        )

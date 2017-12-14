@@ -306,3 +306,23 @@ class Update(command.ShowOne):
             )
 
         return self.columns, utils.get_item_properties(func, self.columns)
+
+
+class Detach(command.Command):
+    def get_parser(self, prog_name):
+        parser = super(Detach, self).get_parser(prog_name)
+        parser.add_argument('function', help='Function ID.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        success_msg = "Request to detach function %s has been accepted."
+        error_msg = "Unable to detach the specified function."
+
+        try:
+            client.functions.detach(parsed_args.function)
+            print(success_msg % parsed_args.function)
+        except Exception as e:
+            print(e)
+            raise exceptions.QinlingClientException(error_msg)
