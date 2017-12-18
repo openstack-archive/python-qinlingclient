@@ -78,11 +78,16 @@ class Delete(base.QinlingDeleter):
     def get_parser(self, prog_name):
         parser = super(Delete, self).get_parser(prog_name)
 
-        parser.add_argument(
-            'execution',
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--execution",
             nargs='+',
-            metavar='EXECUTION',
-            help='ID of function execution(s).'
+            help="ID of function execution(s)."
+        )
+        group.add_argument(
+            "--function",
+            nargs='+',
+            help="ID of function(s)."
         )
 
         return parser
@@ -92,7 +97,13 @@ class Delete(base.QinlingDeleter):
         self.delete = client.function_executions.delete
         self.resource = 'execution'
 
-        self.delete_resources(parsed_args.execution)
+        if parsed_args.execution:
+            self.delete_resources(parsed_args.execution)
+        elif parsed_args.function:
+            for f in parsed_args.function:
+                execs = client.function_executions.list(function_id=f)
+                ids = [e.id for e in execs]
+                self.delete_resources(ids)
 
 
 class Show(command.ShowOne):
