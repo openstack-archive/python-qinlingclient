@@ -14,7 +14,6 @@
 
 from osc_lib.command import command
 from osc_lib import utils
-from oslo_serialization import jsonutils
 
 from qinlingclient.osc.v1 import base
 
@@ -41,34 +40,32 @@ class Create(command.ShowOne):
         )
         parser.add_argument(
             "--input",
-            metavar='INPUT',
             help="Input for the function.",
         )
-        group = parser.add_mutually_exclusive_group(required=True)
+        group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "--sync",
             action='store_true',
+            dest='sync',
+            default=True,
             help="Run execution synchronously."
         )
         group.add_argument(
             "--async",
-            action='store_true',
+            action='store_false',
+            dest='sync',
+            default=True,
             help="Run execution asynchronously.",
         )
 
         return parser
 
     def take_action(self, parsed_args):
-        if parsed_args.input:
-            input = jsonutils.loads(parsed_args.input)
-        else:
-            input = {}
-
         client = self.app.client_manager.function_engine
         execution = client.function_executions.create(
             function=parsed_args.function,
             sync=parsed_args.sync,
-            input=input
+            input=parsed_args.input
         )
 
         return self.columns, utils.get_item_properties(execution, self.columns)
