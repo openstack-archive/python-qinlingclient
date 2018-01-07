@@ -12,6 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import os
+import shutil
 import tempfile
 import zipfile
 
@@ -214,9 +215,10 @@ class Show(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
-        function = client.functions.get(parsed_args.function)
 
-        return self.columns, utils.get_item_properties(function, self.columns)
+        function = client.functions.get(parsed_args.function)
+        return self.columns, utils.get_item_properties(function,
+                                                       self.columns)
 
 
 class Update(command.ShowOne):
@@ -326,3 +328,33 @@ class Detach(command.Command):
         except Exception as e:
             print(e)
             raise exceptions.QinlingClientException(error_msg)
+
+
+class Download(command.Command):
+    def get_parser(self, prog_name):
+        parser = super(Download, self).get_parser(prog_name)
+        parser.add_argument('function', help='Function ID.')
+        parser.add_argument(
+            "-o",
+            "--output",
+            help="Target file path. If not provided, function ID will be used"
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        res = client.functions.get(parsed_args.function, download=True)
+
+        cwd = os.getcwd()
+        if parsed_args.output:
+            if os.path.isabs(parsed_args.output):
+                abs_path = parsed_args.output
+            else:
+                abs_path = os.path.join(cwd, parsed_args.output)
+        else:
+            abs_path = os.path.join(cwd, "%s.zip" % parsed_args.function)
+
+        with open(abs_path, 'wb') as target:
+            shutil.copyfileobj(res.raw, target)
+        print("Code package downloaded to %s" % (abs_path))

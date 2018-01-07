@@ -61,8 +61,13 @@ class FunctionManager(base.Manager):
     def delete(self, id):
         self._delete('/v1/functions/%s' % id)
 
-    def get(self, id):
-        return self._get('/v1/functions/%s' % id)
+    def get(self, id, download=False):
+        url = '/v1/functions/%s' % id
+        if not download:
+            return self._get('/v1/functions/%s' % id)
+
+        url = url + '?download=true'
+        return self.http_client.request(url, 'GET', stream=True)
 
     def update(self, id, code=None, package=None, **kwargs):
         if code:
