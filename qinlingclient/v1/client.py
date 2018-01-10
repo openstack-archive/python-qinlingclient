@@ -18,6 +18,7 @@ from qinlingclient.v1 import function_execution
 from qinlingclient.v1 import function_worker
 from qinlingclient.v1 import job
 from qinlingclient.v1 import runtime
+from qinlingclient.v1 import webhook
 
 
 class Client(object):
@@ -39,3 +40,4 @@ class Client(object):
             self.http_client)
         self.jobs = job.JobManager(self.http_client)
         self.function_workers = function_worker.WorkerManager(self.http_client)
+        self.webhooks = webhook.WebhookManager(self.http_client)

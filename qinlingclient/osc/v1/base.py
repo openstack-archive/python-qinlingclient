@@ -40,6 +40,10 @@ JOB_COLUMNS = (
     'created_at', 'updated_at'
 )
 WORKER_COLUMNS = ('function_id', 'worker_name')
+WEBHOOK_COLUMNS = (
+    'id', 'function_id', 'description', 'project_id',
+    'created_at', 'updated_at', 'webhook_url'
+)
 
 
 @six.add_metaclass(abc.ABCMeta)
