@@ -22,6 +22,8 @@ from osc_lib import utils
 from qinlingclient.common import exceptions
 from qinlingclient.osc.v1 import base
 
+MAX_ZIP_SIZE = 50 * 1024 * 1024
+
 
 def _get_package_file(package_path=None, file_path=None):
     if package_path:
@@ -29,9 +31,16 @@ def _get_package_file(package_path=None, file_path=None):
             raise exceptions.QinlingClientException(
                 'Package %s is not a valid ZIP file.' % package_path
             )
+
+        if os.path.getsize(package_path) > MAX_ZIP_SIZE:
+            raise exceptions.QinlingClientException(
+                'Package file size must be no more than %sM.' %
+                (MAX_ZIP_SIZE / 1024 / 1024)
+            )
+
         return package_path
 
-    if file_path:
+    elif file_path:
         if not os.path.isfile(file_path):
             raise exceptions.QinlingClientException(
                 'File %s not exist.' % file_path
@@ -54,6 +63,12 @@ def _get_package_file(package_path=None, file_path=None):
             )
         finally:
             zf.close()
+
+        if os.path.getsize(zip_file) > MAX_ZIP_SIZE:
+            raise exceptions.QinlingClientException(
+                'Package file size must be no more than %sM.' %
+                (MAX_ZIP_SIZE / 1024 / 1024)
+            )
 
         return zip_file
 
@@ -139,6 +154,11 @@ class Create(command.ShowOne):
                     package=package,
                     entry=parsed_args.entry,
                 )
+
+            # Delete zip file the clinet created
+            if parsed_args.file and not parsed_args.package:
+                os.remove(zip_file)
+
         elif parsed_args.code_type == 'swift':
             if not (parsed_args.container and parsed_args.object):
                 raise exceptions.QinlingClientException(
@@ -163,6 +183,7 @@ class Create(command.ShowOne):
                 code=code,
                 entry=parsed_args.entry,
             )
+
         elif parsed_args.code_type == 'image':
             if not parsed_args.image:
                 raise exceptions.QinlingClientException(
