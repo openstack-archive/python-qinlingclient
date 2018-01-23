@@ -21,6 +21,7 @@ from osc_lib import utils
 
 from qinlingclient.common import exceptions
 from qinlingclient.osc.v1 import base
+from qinlingclient import utils as q_utils
 
 MAX_ZIP_SIZE = 50 * 1024 * 1024
 
@@ -146,16 +147,19 @@ class Create(command.ShowOne):
                 )
 
             zip_file = _get_package_file(parsed_args.package, parsed_args.file)
+            md5sum = q_utils.md5(file=zip_file)
+            code = {"source": "package", "md5sum": md5sum}
+
             with open(zip_file, 'rb') as package:
                 function = client.functions.create(
                     name=parsed_args.name,
                     runtime=parsed_args.runtime,
-                    code={"source": "package"},
+                    code=code,
                     package=package,
                     entry=parsed_args.entry,
                 )
 
-            # Delete zip file the clinet created
+            # Delete zip file the client created
             if parsed_args.file and not parsed_args.package:
                 os.remove(zip_file)
 
