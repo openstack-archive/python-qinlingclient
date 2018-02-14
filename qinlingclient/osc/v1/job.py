@@ -14,8 +14,10 @@
 
 from osc_lib.command import command
 from osc_lib import utils as osc_utils
+from oslo_utils import uuidutils
 
 from qinlingclient.osc.v1 import base
+from qinlingclient import utils as q_utils
 
 
 class List(base.QinlingLister):
@@ -34,8 +36,9 @@ class Create(command.ShowOne):
         parser = super(Create, self).get_parser(prog_name)
 
         parser.add_argument(
-            "function_id",
-            help="Function ID.",
+            "function",
+            metavar='FUNCTION',
+            help="Function name or ID.",
         )
 
         parser.add_argument(
@@ -64,8 +67,15 @@ class Create(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
+
+        function_id = parsed_args.function
+        if not uuidutils.is_uuid_like(function_id):
+            # Try to find the function id with name
+            function_id = q_utils.find_resource_id_by_name(
+                client.functions, function_id)
+
         job = client.jobs.create(
-            function_id=parsed_args.function_id,
+            function_id=function_id,
             name=parsed_args.name,
             first_execution_time=parsed_args.first_execution_time,
             pattern=parsed_args.pattern,

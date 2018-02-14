@@ -21,7 +21,7 @@ class Function(base.Resource):
     pass
 
 
-class FunctionManager(base.Manager):
+class FunctionManager(base.ManagerWithFind):
     resource_class = Function
 
     def list(self, **kwargs):

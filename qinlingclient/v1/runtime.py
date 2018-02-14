@@ -19,7 +19,7 @@ class Runtime(base.Resource):
     pass
 
 
-class RuntimeManager(base.Manager):
+class RuntimeManager(base.ManagerWithFind):
     resource_class = Runtime
 
     def list(self, **kwargs):
