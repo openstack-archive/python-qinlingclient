@@ -1,27 +1,34 @@
-..
-      Copyright 2017 Catalyst IT Limited
+.. python-qinlingclient documentation master file, created by
+   sphinx-quickstart on Tue Jul  9 22:26:36 2013.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-      Licensed under the Apache License, Version 2.0 (the "License"); you may
-      not use this file except in compliance with the License. You may obtain
-      a copy of the License at
+Python Qinling Client
+=====================
 
-           http://www.apache.org/licenses/LICENSE-2.0
+The Python Qinling Client (python-qinlingclient) is a command-line client for
+the OpenStack Function as a Service.
 
-      Unless required by applicable law or agreed to in writing, software
-      distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-      WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-      License for the specific language governing permissions and limitations
-      under the License.
+Getting Started
+---------------
 
-==================
-Qinling API Client
-==================
+.. toctree::
+   :maxdepth: 2
 
-In order to use the python api directly, you must first obtain an auth token
-and identify which endpoint you wish to speak to. Once you have done so,
-you can use the API like so::
+   Project Overview <readme>
+   install/index
+   contributor/index
 
-    >>> from qinlingclient import Client
-    >>> qinling = Client('1', endpoint=QINLING_URL, token=OS_AUTH_TOKEN)
-    ...
+Usage
+-----
 
+.. toctree::
+   :maxdepth: 2
+
+   cli/index
+
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`search`
