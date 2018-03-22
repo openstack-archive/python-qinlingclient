@@ -74,6 +74,18 @@ def _get_package_file(package_path=None, file_path=None):
         return zip_file
 
 
+def worker_count(value):
+    try:
+        value = int(value)
+        if value <= 0:
+            raise ValueError
+    except ValueError:
+        raise exceptions.QinlingClientException(
+            'Worker count must be a positive integer.'
+        )
+    return value
+
+
 class List(base.QinlingLister):
     columns = base.FUNCTION_COLUMNS
 
@@ -391,3 +403,47 @@ class Download(command.Command):
         with open(abs_path, 'wb') as target:
             shutil.copyfileobj(res.raw, target)
         print("Code package downloaded to %s" % (abs_path))
+
+
+class Scaleup(command.Command):
+    def get_parser(self, prog_name):
+        parser = super(Scaleup, self).get_parser(prog_name)
+        parser.add_argument('function', help='Function ID.')
+        parser.add_argument('--count', type=worker_count, default=1,
+                            help='Number of workers to scale up.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        success_msg = "Request to scale up function %s has been accepted."
+        error_msg = "Unable to scale up the specified function."
+
+        try:
+            client.functions.scaleup(parsed_args.function, parsed_args.count)
+            print(success_msg % parsed_args.function)
+        except Exception as e:
+            print(e)
+            raise exceptions.QinlingClientException(error_msg)
+
+
+class Scaledown(command.Command):
+    def get_parser(self, prog_name):
+        parser = super(Scaledown, self).get_parser(prog_name)
+        parser.add_argument('function', help='Function ID.')
+        parser.add_argument('--count', type=worker_count, default=1,
+                            help='Number of workers to scale down.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+        success_msg = "Request to scale down function %s has been accepted."
+        error_msg = "Unable to scale down the specified function."
+
+        try:
+            client.functions.scaledown(parsed_args.function, parsed_args.count)
+            print(success_msg % parsed_args.function)
+        except Exception as e:
+            print(e)
+            raise exceptions.QinlingClientException(error_msg)

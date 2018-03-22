@@ -91,3 +91,19 @@ class FunctionManager(base.Manager):
             '/v1/functions/%s/detach' % id,
             'POST',
         )
+
+    def scaleup(self, id, count=1):
+        params = {'data': {'count': count}}
+        return self.http_client.json_request(
+            '/v1/functions/%s/scale_up' % id,
+            'POST',
+            **params
+        )
+
+    def scaledown(self, id, count=1):
+        params = {'data': {'count': count}}
+        return self.http_client.json_request(
+            '/v1/functions/%s/scale_down' % id,
+            'POST',
+            **params
+        )
