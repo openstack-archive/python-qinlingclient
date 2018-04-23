@@ -47,7 +47,7 @@ def _get_package_file(package_path=None, file_path=None):
                 'File %s not exist.' % file_path
             )
 
-        base_name, extention = os.path.splitext(file_path)
+        base_name, extension = os.path.splitext(file_path)
         base_name = os.path.basename(base_name)
         zip_file = os.path.join(
             tempfile.gettempdir(),
@@ -59,7 +59,7 @@ def _get_package_file(package_path=None, file_path=None):
             # Use default compression mode, may change in future.
             zf.write(
                 file_path,
-                '%s%s' % (base_name, extention),
+                '%s%s' % (base_name, extension),
                 compress_type=zipfile.ZIP_STORED
             )
         finally:
