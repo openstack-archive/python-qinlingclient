@@ -44,6 +44,10 @@ WEBHOOK_COLUMNS = (
     'id', 'function_id', 'description', 'project_id',
     'created_at', 'updated_at', 'webhook_url'
 )
+FUNCTION_VERSION_COLUMNS = (
+    'id', 'function_id', 'description', 'version_number', 'count',
+    'project_id', 'created_at', 'updated_at'
+)
 
 
 @six.add_metaclass(abc.ABCMeta)
