@@ -15,6 +15,7 @@
 from qinlingclient.common import http
 from qinlingclient.v1 import function
 from qinlingclient.v1 import function_execution
+from qinlingclient.v1 import function_version
 from qinlingclient.v1 import function_worker
 from qinlingclient.v1 import job
 from qinlingclient.v1 import runtime
@@ -41,3 +42,5 @@ class Client(object):
         self.jobs = job.JobManager(self.http_client)
         self.function_workers = function_worker.WorkerManager(self.http_client)
         self.webhooks = webhook.WebhookManager(self.http_client)
+        self.function_versions = function_version.FunctionVersionManager(
+            self.http_client)
