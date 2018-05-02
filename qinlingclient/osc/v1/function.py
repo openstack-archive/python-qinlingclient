@@ -92,7 +92,7 @@ class Create(command.ShowOne):
         parser.add_argument(
             "--code-type",
             choices=['package', 'swift', 'image'],
-            required=True,
+            required=False,
             help="Code type.",
         )
         parser.add_argument(
@@ -135,6 +135,14 @@ class Create(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
+
+        if not parsed_args.code_type:
+            if (parsed_args.file or parsed_args.package):
+                parsed_args.code_type = 'package'
+            elif (parsed_args.container or parsed_args.object):
+                parsed_args.code_type = 'swift'
+            elif parsed_args.image:
+                parsed_args.code_type = 'image'
 
         if parsed_args.code_type == 'package':
             if not (parsed_args.file or parsed_args.package):
