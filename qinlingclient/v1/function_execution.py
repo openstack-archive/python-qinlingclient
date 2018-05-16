@@ -33,8 +33,13 @@ class ExecutionManager(base.Manager):
             url += '?%s' % q_params
         return self._list(url, response_key='executions')
 
-    def create(self, function, sync=True, input=None):
-        data = {'function_id': function, 'sync': sync, 'input': input}
+    def create(self, function, version=0, sync=True, input=None):
+        data = {
+            'function_id': function,
+            'function_version': version,
+            'sync': sync,
+            'input': input
+        }
         return self._create('/v1/executions', data)
 
     def delete(self, id):

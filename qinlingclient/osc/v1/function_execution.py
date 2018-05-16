@@ -39,6 +39,12 @@ class Create(command.ShowOne):
             help="Function ID.",
         )
         parser.add_argument(
+            "--function-version",
+            type=int,
+            default=0,
+            help="Function version number.",
+        )
+        parser.add_argument(
             "--input",
             help="Input for the function.",
         )
@@ -62,8 +68,10 @@ class Create(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
+
         execution = client.function_executions.create(
             function=parsed_args.function,
+            version=parsed_args.function_version,
             sync=parsed_args.sync,
             input=parsed_args.input
         )
