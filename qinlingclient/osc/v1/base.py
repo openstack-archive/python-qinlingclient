@@ -28,7 +28,7 @@ RUNTIME_COLUMNS = (
 )
 FUNCTION_COLUMNS = (
     'id', 'name', 'description', 'count', 'code', 'runtime_id', 'entry',
-    'project_id', 'created_at', 'updated_at'
+    'project_id', 'created_at', 'updated_at', 'cpu', 'memory_size'
 )
 EXECUTION_COLUMNS = (
     'id', 'function_id', 'function_version', 'description', 'input', 'result',

@@ -142,6 +142,14 @@ class Create(command.ShowOne):
             "--image",
             help="Image name in docker hub.",
         )
+        parser.add_argument(
+            "--cpu",
+            help="Limit of cpu resource(unit: millicpu).",
+        )
+        parser.add_argument(
+            "--memory-size",
+            help="Limit of memory resource(unit: bytes).",
+        )
 
         return parser
 
@@ -177,6 +185,8 @@ class Create(command.ShowOne):
                     code=code,
                     package=package,
                     entry=parsed_args.entry,
+                    cpu=parsed_args.cpu,
+                    memory_size=parsed_args.memory_size
                 )
 
             # Delete zip file the client created
@@ -206,6 +216,8 @@ class Create(command.ShowOne):
                 runtime=parsed_args.runtime,
                 code=code,
                 entry=parsed_args.entry,
+                cpu=parsed_args.cpu,
+                memory_size=parsed_args.memory_size
             )
 
         elif parsed_args.code_type == 'image':
@@ -223,6 +235,8 @@ class Create(command.ShowOne):
                 name=parsed_args.name,
                 code=code,
                 entry=parsed_args.entry,
+                cpu=parsed_args.cpu,
+                memory_size=parsed_args.memory_size
             )
 
         return self.columns, utils.get_item_properties(function, self.columns)
@@ -312,6 +326,14 @@ class Update(command.ShowOne):
             "--object",
             help="Object name in Swift.",
         )
+        parser.add_argument(
+            "--cpu",
+            help="Limit of cpu resource(unit: millicpu).",
+        )
+        parser.add_argument(
+            "--memory-size",
+            help="Limit of memory resource(unit: bytes).",
+        )
 
         return parser
 
@@ -342,6 +364,8 @@ class Update(command.ShowOne):
                     name=parsed_args.name,
                     description=parsed_args.description,
                     entry=parsed_args.entry,
+                    cpu=parsed_args.cpu,
+                    memory_size=parsed_args.memory_size
                 )
         else:
             func = client.functions.update(
@@ -350,6 +374,8 @@ class Update(command.ShowOne):
                 name=parsed_args.name,
                 description=parsed_args.description,
                 entry=parsed_args.entry,
+                cpu=parsed_args.cpu,
+                memory_size=parsed_args.memory_size
             )
 
         return self.columns, utils.get_item_properties(func, self.columns)
