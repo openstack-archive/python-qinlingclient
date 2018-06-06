@@ -1,0 +1,10 @@
+---
+prelude: >
+    Support to specify the resource(memory/cpu) limitation when creating the
+    function.
+features:
+  - |
+    End user could restrict the resource consumption for the function execution
+    by specifying ``--cpu`` and ``--memory-size`` when creating the function.
+    Those resource limitation has the default value if not provided, please
+    refer to Qinling documentation for more details.
