@@ -22,7 +22,8 @@ https://docs.openstack.org/python-openstackclient/latest/
 
 * Free software: Apache license
 * Documentation: https://docs.openstack.org/python-qinlingclient/latest/
-* Source: http://git.openstack.org/cgit/openstack/python-qinlingclient
+* Release notes: https://docs.openstack.org/releasenotes/python-qinlingclient/
+* Source: https://git.openstack.org/cgit/openstack/python-qinlingclient
 * Bugs: https://storyboard.openstack.org/#!/project/926
 
 Getting Started
