@@ -26,3 +26,10 @@ def md5(file=None, content=None):
         hash_md5.update(content)
 
     return hash_md5.hexdigest()
+
+
+def find_resource_id_by_name(manager, name):
+    # An exception will be raised when resource is not found or multiple
+    # resources for the name are found.
+    resource = manager.find(name=name)
+    return resource.id

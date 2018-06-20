@@ -18,6 +18,7 @@ import zipfile
 
 from osc_lib.command import command
 from osc_lib import utils
+from oslo_utils import uuidutils
 
 from qinlingclient.common import exceptions
 from qinlingclient.osc.v1 import base
@@ -164,12 +165,18 @@ class Create(command.ShowOne):
             elif parsed_args.image:
                 parsed_args.code_type = 'image'
 
+        runtime = parsed_args.runtime
+        if runtime and not uuidutils.is_uuid_like(runtime):
+            # Try to find the runtime id with name
+            runtime = q_utils.find_resource_id_by_name(
+                client.runtimes, runtime)
+
         if parsed_args.code_type == 'package':
             if not (parsed_args.file or parsed_args.package):
                 raise exceptions.QinlingClientException(
                     'Package or file needs to be specified.'
                 )
-            if not parsed_args.runtime:
+            if not runtime:
                 raise exceptions.QinlingClientException(
                     'Runtime needs to be specified for package type function.'
                 )
@@ -181,7 +188,7 @@ class Create(command.ShowOne):
             with open(zip_file, 'rb') as package:
                 function = client.functions.create(
                     name=parsed_args.name,
-                    runtime=parsed_args.runtime,
+                    runtime=runtime,
                     code=code,
                     package=package,
                     entry=parsed_args.entry,
@@ -198,7 +205,7 @@ class Create(command.ShowOne):
                 raise exceptions.QinlingClientException(
                     'Container name and object name need to be specified.'
                 )
-            if not parsed_args.runtime:
+            if not runtime:
                 raise exceptions.QinlingClientException(
                     'Runtime needs to be specified for package type function.'
                 )
@@ -213,7 +220,7 @@ class Create(command.ShowOne):
 
             function = client.functions.create(
                 name=parsed_args.name,
-                runtime=parsed_args.runtime,
+                runtime=runtime,
                 code=code,
                 entry=parsed_args.entry,
                 cpu=parsed_args.cpu,
