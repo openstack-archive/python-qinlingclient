@@ -41,6 +41,12 @@ class Create(command.ShowOne):
             help="Function name or ID.",
         )
         parser.add_argument(
+            "--function-version",
+            type=int,
+            default=0,
+            help="Function version number.",
+        )
+        parser.add_argument(
             "--description",
             help="Webhook description.",
         )
@@ -58,6 +64,7 @@ class Create(command.ShowOne):
 
         webhook = client.webhooks.create(
             function_id=function_id,
+            function_version=parsed_args.function_version,
             description=parsed_args.description,
         )
 
@@ -115,6 +122,12 @@ class Update(command.ShowOne):
             "--function-id",
             help="Function ID."
         )
+        parser.add_argument(
+            "--function-version",
+            type=int,
+            default=0,
+            help="Function version number.",
+        )
         group.add_argument(
             "--description",
             help="Webhook description."
@@ -127,6 +140,7 @@ class Update(command.ShowOne):
         webhook = client.webhooks.update(
             parsed_args.id,
             function_id=parsed_args.function_id,
+            function_version=parsed_args.function_version,
             description=parsed_args.description
         )
 

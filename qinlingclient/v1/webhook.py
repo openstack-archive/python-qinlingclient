@@ -33,8 +33,11 @@ class WebhookManager(base.Manager):
             url += '?%s' % q_params
         return self._list(url, response_key='webhooks')
 
-    def create(self, function_id, description=None):
-        data = {'function_id': function_id}
+    def create(self, function_id, function_version=0, description=None):
+        data = {
+            'function_id': function_id,
+            'function_version': function_version,
+        }
         if description:
             data.update({'description': description})
 
@@ -49,7 +52,7 @@ class WebhookManager(base.Manager):
     def update(self, id, **kwargs):
         """Update webhook.
 
-        function_id and description are supported.
+        function_id, function_version and description are supported.
         """
         body = {}
         for k, v in kwargs.items():
