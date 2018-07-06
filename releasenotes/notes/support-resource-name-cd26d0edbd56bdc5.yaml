@@ -1,0 +1,5 @@
+---
+features:
+  - Support resource name in CLI, specifically runtime name in function
+    operations and function name in the operations of other resources like
+    execution, function version, job and webhook.
