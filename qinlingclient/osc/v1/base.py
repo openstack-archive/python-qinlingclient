@@ -35,9 +35,9 @@ EXECUTION_COLUMNS = (
     'status', 'sync', 'project_id', 'created_at', 'updated_at'
 )
 JOB_COLUMNS = (
-    'id', 'name', 'count', 'status', 'function_id', 'function_input',
-    'pattern', 'first_execution_time', 'next_execution_time', 'project_id',
-    'created_at', 'updated_at'
+    'id', 'name', 'count', 'status', 'function_id', 'function_version',
+    'function_input', 'pattern', 'first_execution_time', 'next_execution_time',
+    'project_id', 'created_at', 'updated_at'
 )
 WORKER_COLUMNS = ('function_id', 'worker_name')
 WEBHOOK_COLUMNS = (

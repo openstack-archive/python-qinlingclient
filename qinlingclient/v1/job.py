@@ -25,8 +25,19 @@ class JobManager(base.Manager):
     def list(self, **kwargs):
         return self._list("/v1/jobs", response_key='jobs')
 
-    def create(self, **kwargs):
-        return self._create('/v1/jobs', data=kwargs)
+    def create(self, function_id, function_version=0, name=None,
+               first_execution_time=None, pattern=None, function_input=None,
+               count=None):
+        body = {
+            "function_id": function_id,
+            "function_version": function_version,
+            "name": name,
+            "first_execution_time": first_execution_time,
+            "pattern": pattern,
+            "function_input": function_input,
+            "count": count
+        }
+        return self._create('/v1/jobs', data=body)
 
     def delete(self, id):
         self._delete('/v1/jobs/%s' % id)
