@@ -40,7 +40,12 @@ class Create(command.ShowOne):
             metavar='FUNCTION',
             help="Function name or ID.",
         )
-
+        parser.add_argument(
+            "--function-version",
+            type=int,
+            default=0,
+            help="Function version number. Default: 0",
+        )
         parser.add_argument(
             "--name",
             help="Job name."
@@ -75,7 +80,8 @@ class Create(command.ShowOne):
                 client.functions, function_id)
 
         job = client.jobs.create(
-            function_id=function_id,
+            function_id,
+            function_version=parsed_args.function_version,
             name=parsed_args.name,
             first_execution_time=parsed_args.first_execution_time,
             pattern=parsed_args.pattern,
