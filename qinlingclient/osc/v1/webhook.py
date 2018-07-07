@@ -44,7 +44,7 @@ class Create(command.ShowOne):
             "--function-version",
             type=int,
             default=0,
-            help="Function version number.",
+            help="Function version number. Default: 0",
         )
         parser.add_argument(
             "--description",
@@ -117,8 +117,7 @@ class Update(command.ShowOne):
             'id',
             help='Webhook ID.'
         )
-        group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument(
+        parser.add_argument(
             "--function-id",
             help="Function ID."
         )
@@ -126,9 +125,9 @@ class Update(command.ShowOne):
             "--function-version",
             type=int,
             default=0,
-            help="Function version number.",
+            help="Function version number. Default: 0",
         )
-        group.add_argument(
+        parser.add_argument(
             "--description",
             help="Webhook description."
         )
