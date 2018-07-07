@@ -1,0 +1,4 @@
+---
+features:
+  - The user can create or update webhook by specifying the function version
+    (``--function-version``) together with the function.
