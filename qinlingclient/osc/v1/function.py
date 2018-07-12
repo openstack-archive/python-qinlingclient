@@ -103,14 +103,9 @@ class Create(command.ShowOne):
         parser = super(Create, self).get_parser(prog_name)
 
         parser.add_argument(
-            "--code-type",
-            choices=['package', 'swift', 'image'],
-            required=False,
-            help="Code type.",
-        )
-        parser.add_argument(
             "--runtime",
-            help="Runtime ID.",
+            help="Runtime ID. Runtime is needed for function of package type "
+                 "and swift type, but not for the image type function.",
         )
         parser.add_argument(
             "--name",
@@ -156,14 +151,14 @@ class Create(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
+        code_type = None
 
-        if not parsed_args.code_type:
-            if (parsed_args.file or parsed_args.package):
-                parsed_args.code_type = 'package'
-            elif (parsed_args.container or parsed_args.object):
-                parsed_args.code_type = 'swift'
-            elif parsed_args.image:
-                parsed_args.code_type = 'image'
+        if (parsed_args.file or parsed_args.package):
+            code_type = 'package'
+        elif (parsed_args.container or parsed_args.object):
+            code_type = 'swift'
+        elif parsed_args.image:
+            code_type = 'image'
 
         runtime = parsed_args.runtime
         if runtime and not uuidutils.is_uuid_like(runtime):
@@ -171,11 +166,7 @@ class Create(command.ShowOne):
             runtime = q_utils.find_resource_id_by_name(
                 client.runtimes, runtime)
 
-        if parsed_args.code_type == 'package':
-            if not (parsed_args.file or parsed_args.package):
-                raise exceptions.QinlingClientException(
-                    'Package or file needs to be specified.'
-                )
+        if code_type == 'package':
             if not runtime:
                 raise exceptions.QinlingClientException(
                     'Runtime needs to be specified for package type function.'
@@ -200,7 +191,7 @@ class Create(command.ShowOne):
             if parsed_args.file and not parsed_args.package:
                 os.remove(zip_file)
 
-        elif parsed_args.code_type == 'swift':
+        elif code_type == 'swift':
             if not (parsed_args.container and parsed_args.object):
                 raise exceptions.QinlingClientException(
                     'Container name and object name need to be specified.'
@@ -227,12 +218,7 @@ class Create(command.ShowOne):
                 memory_size=parsed_args.memory_size
             )
 
-        elif parsed_args.code_type == 'image':
-            if not parsed_args.image:
-                raise exceptions.QinlingClientException(
-                    'Image needs to be specified.'
-                )
-
+        elif code_type == 'image':
             code = {
                 "source": "image",
                 "image": parsed_args.image
