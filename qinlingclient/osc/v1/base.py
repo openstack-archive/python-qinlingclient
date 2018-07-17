@@ -26,6 +26,7 @@ RUNTIME_COLUMNS = (
     'id', 'name', 'image', 'status', 'description', 'project_id',
     'created_at', 'updated_at'
 )
+RUNTIME_POOL_COLUMNS = ('name', 'capacity')
 FUNCTION_COLUMNS = (
     'id', 'name', 'description', 'count', 'code', 'runtime_id', 'entry',
     'project_id', 'created_at', 'updated_at', 'cpu', 'memory_size'

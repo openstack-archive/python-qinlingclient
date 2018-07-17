@@ -1,0 +1,6 @@
+---
+features:
+  - Add an administrative command ``openstack runtime pool show`` to get the
+    runtime pool information. This command is useful for admin user to check
+    the information such as the current capacity of the runtime, in order to
+    adjust the pool size according to the users' need.

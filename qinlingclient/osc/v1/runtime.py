@@ -96,3 +96,20 @@ class Show(command.ShowOne):
         runtime = client.runtimes.get(parsed_args.runtime)
 
         return self.columns, utils.get_item_properties(runtime, self.columns)
+
+
+class Pool(command.ShowOne):
+    columns = base.RUNTIME_POOL_COLUMNS
+
+    def get_parser(self, prog_name):
+        parser = super(Pool, self).get_parser(prog_name)
+        parser.add_argument('runtime', help='Runtime ID.')
+
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.function_engine
+
+        pool = client.runtimes.get_pool(parsed_args.runtime)
+        return self.columns, utils.get_item_properties(pool,
+                                                       self.columns)

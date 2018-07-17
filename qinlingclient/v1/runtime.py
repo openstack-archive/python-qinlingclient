@@ -39,3 +39,6 @@ class RuntimeManager(base.ManagerWithFind):
 
     def get(self, id):
         return self._get('/v1/runtimes/%s' % id)
+
+    def get_pool(self, id):
+        return self._get('/v1/runtimes/%s/pool' % id)
