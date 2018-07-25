@@ -46,6 +46,13 @@ class Create(command.ShowOne):
             "--description",
             help="Runtime description.",
         )
+        parser.add_argument(
+            "--untrusted",
+            dest='trusted',
+            action='store_false',
+            help="Create untrusted runtime or not, will create trusted "
+                 "runtime if not specified",
+        )
 
         return parser
 
@@ -55,7 +62,8 @@ class Create(command.ShowOne):
         runtime = client.runtimes.create(
             name=parsed_args.name,
             description=parsed_args.description,
-            image=parsed_args.image
+            image=parsed_args.image,
+            trusted=parsed_args.trusted
         )
 
         return self.columns, utils.get_item_properties(runtime, self.columns)

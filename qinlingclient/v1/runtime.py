@@ -25,8 +25,8 @@ class RuntimeManager(base.ManagerWithFind):
     def list(self, **kwargs):
         return self._list("/v1/runtimes", response_key='runtimes')
 
-    def create(self, image, name=None, description=None):
-        data = {'image': image}
+    def create(self, image, name=None, description=None, trusted=True):
+        data = {'image': image, 'trusted': trusted}
         if name:
             data.update({'name': name})
         if description:

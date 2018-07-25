@@ -23,31 +23,86 @@ from qinlingclient.common import exceptions
 from qinlingclient.i18n import _
 
 RUNTIME_COLUMNS = (
-    'id', 'name', 'image', 'status', 'description', 'project_id',
-    'created_at', 'updated_at'
+    'id',
+    'name',
+    'image',
+    'status',
+    'description',
+    'is_public',
+    'trusted',
+    'project_id',
+    'created_at',
+    'updated_at'
 )
-RUNTIME_POOL_COLUMNS = ('name', 'capacity')
+RUNTIME_POOL_COLUMNS = (
+    'name',
+    'capacity'
+)
 FUNCTION_COLUMNS = (
-    'id', 'name', 'description', 'count', 'code', 'runtime_id', 'entry',
-    'project_id', 'created_at', 'updated_at', 'cpu', 'memory_size'
+    'id',
+    'name',
+    'description',
+    'count',
+    'code',
+    'runtime_id',
+    'entry',
+    'project_id',
+    'created_at',
+    'updated_at',
+    'cpu',
+    'memory_size'
 )
 EXECUTION_COLUMNS = (
-    'id', 'function_id', 'function_version', 'description', 'input', 'result',
-    'status', 'sync', 'project_id', 'created_at', 'updated_at'
+    'id',
+    'function_id',
+    'function_version',
+    'description',
+    'input',
+    'result',
+    'status',
+    'sync',
+    'project_id',
+    'created_at',
+    'updated_at'
 )
 JOB_COLUMNS = (
-    'id', 'name', 'count', 'status', 'function_id', 'function_version',
-    'function_input', 'pattern', 'first_execution_time', 'next_execution_time',
-    'project_id', 'created_at', 'updated_at'
+    'id',
+    'name',
+    'count',
+    'status',
+    'function_id',
+    'function_version',
+    'function_input',
+    'pattern',
+    'first_execution_time',
+    'next_execution_time',
+    'project_id',
+    'created_at',
+    'updated_at'
 )
-WORKER_COLUMNS = ('function_id', 'worker_name')
+WORKER_COLUMNS = (
+    'function_id',
+    'worker_name'
+)
 WEBHOOK_COLUMNS = (
-    'id', 'function_id', 'function_version', 'description', 'project_id',
-    'created_at', 'updated_at', 'webhook_url'
+    'id',
+    'function_id',
+    'function_version',
+    'description',
+    'project_id',
+    'created_at',
+    'updated_at',
+    'webhook_url'
 )
 FUNCTION_VERSION_COLUMNS = (
-    'id', 'function_id', 'description', 'version_number', 'count',
-    'project_id', 'created_at', 'updated_at'
+    'id',
+    'function_id',
+    'description',
+    'version_number',
+    'count',
+    'project_id',
+    'created_at',
+    'updated_at'
 )
 
 
