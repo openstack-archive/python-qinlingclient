@@ -159,6 +159,17 @@ class Create(command.ShowOne):
             code_type = 'swift'
         elif parsed_args.image:
             code_type = 'image'
+        else:
+            raise exceptions.QinlingClientException(
+                'Cannot create function with the parameters given.\nMust '
+                'provide required parameters for different type of '
+                'functions:\n'
+                '    - for package type function, either --file or --package '
+                'is required,\n'
+                '    - for swift type function, both --container and --object '
+                'are required,\n'
+                '    - for image type function, --image is required.'
+            )
 
         runtime = parsed_args.runtime
         if runtime and not uuidutils.is_uuid_like(runtime):
