@@ -104,6 +104,15 @@ FUNCTION_VERSION_COLUMNS = (
     'created_at',
     'updated_at'
 )
+FUNCTION_ALIAS_COLUMNS = (
+    'name',
+    'function_id',
+    'description',
+    'function_version',
+    'project_id',
+    'created_at',
+    'updated_at'
+)
 
 
 @six.add_metaclass(abc.ABCMeta)
