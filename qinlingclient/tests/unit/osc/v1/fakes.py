@@ -30,6 +30,7 @@ class FakeQinlingClient(object):
         self.auth_url = kwargs['auth_url']
         self.runtimes = mock.Mock()
         self.functions = mock.Mock()
+        self.function_executions = mock.Mock()
 
 
 class TestQinlingClient(utils.TestCommand):
@@ -227,3 +228,80 @@ class FakeFunction(object):
             functions = FakeFunction.create_functions(count=count)
 
         return mock.Mock(side_effect=functions)
+
+
+class FakeExecution(object):
+    """Fake one or more function executions."""
+
+    @staticmethod
+    def create_one_execution(attrs=None):
+        """Create a fake function execution.
+
+        :param Dictionary attrs:
+            A dictionary with all atrributes
+        :return:
+            A FakeResource object, with id, function_id, etc.
+        """
+
+        attrs = attrs or {}
+        # Set default attributes.
+        execution_attrs = {
+            'id': str(uuid.uuid4()),
+            'function_id': str(uuid.uuid4()),
+            'function_version': 0,
+            'description': 'execution-description-' + uuid.uuid4().hex,
+            'input': '{"FAKE_INPUT_KEY": "FAKE_INPUT_VALUE"}',
+            'result': '{"duration": 1.234, "output": "FAKE_OUTPUT"}',
+            'status': 'success',
+            'sync': True,
+            'project_id': str(uuid.uuid4()),
+            'created_at': '2018-07-26 09:00:00',
+            'updated_at': '2018-07-26 09:00:30',
+        }
+
+        # Overwrite default attributes.
+        execution_attrs.update(attrs)
+
+        execution = fakes.FakeResource(info=copy.deepcopy(execution_attrs),
+                                       loaded=True)
+
+        return execution
+
+    @staticmethod
+    def create_executions(attrs=None, count=2):
+        """Create multiple fake function executions.
+
+        :param Dictionary attrs:
+            A dictionary with all atrributes
+        :param int count:
+            The number of function executions to fake
+        :return:
+            A list of FakeResource objects faking the function executions.
+        """
+
+        executions = []
+        for i in range(count):
+            executions.append(FakeExecution.create_one_execution(attrs))
+
+        return executions
+
+    @staticmethod
+    def get_executions(executions=None, count=2):
+        """Get an iterable Mock object with a list of faked executions.
+
+        If function executions list is provided, then initialize the Mock
+        object with the list. Otherwise create one.
+
+        :param List executions:
+            A list of FakeResource faking function executions
+        :param int count:
+            The number of function executions to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            function executions.
+        """
+
+        if executions is None:
+            executions = FakeExecution.create_executions(count=count)
+
+        return mock.Mock(side_effect=executions)
