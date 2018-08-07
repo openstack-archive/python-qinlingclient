@@ -14,6 +14,7 @@
 
 from qinlingclient.common import http
 from qinlingclient.v1 import function
+from qinlingclient.v1 import function_alias
 from qinlingclient.v1 import function_execution
 from qinlingclient.v1 import function_version
 from qinlingclient.v1 import function_worker
@@ -43,4 +44,6 @@ class Client(object):
         self.function_workers = function_worker.WorkerManager(self.http_client)
         self.webhooks = webhook.WebhookManager(self.http_client)
         self.function_versions = function_version.FunctionVersionManager(
+            self.http_client)
+        self.function_aliases = function_alias.FunctionAliasManager(
             self.http_client)
