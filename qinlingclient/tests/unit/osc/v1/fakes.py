@@ -31,6 +31,7 @@ class FakeQinlingClient(object):
         self.runtimes = mock.Mock()
         self.functions = mock.Mock()
         self.function_executions = mock.Mock()
+        self.function_versions = mock.Mock()
 
 
 class TestQinlingClient(utils.TestCommand):
@@ -305,3 +306,82 @@ class FakeExecution(object):
             executions = FakeExecution.create_executions(count=count)
 
         return mock.Mock(side_effect=executions)
+
+
+class FakeFunctionVersion(object):
+    """Fake one or more function versions."""
+
+    @staticmethod
+    def create_one_function_version(attrs=None):
+        """Create a fake function version.
+
+        :param Dictionary attrs:
+            A dictionary with all atrributes
+        :return:
+            A FakeResource object, with id, function_id, etc.
+        """
+
+        attrs = attrs or {}
+        # Set default attributes.
+        function_version_attrs = {
+            'id': str(uuid.uuid4()),
+            'function_id': str(uuid.uuid4()),
+            'description': 'function-version-description-' + uuid.uuid4().hex,
+            'version_number': 1,
+            'count': 0,
+            'project_id': str(uuid.uuid4()),
+            'created_at': '2018-07-26 09:00:00',
+            'updated_at': '2018-07-26 09:00:30',
+        }
+
+        # Overwrite default attributes.
+        function_version_attrs.update(attrs)
+
+        function_version = fakes.FakeResource(
+            info=copy.deepcopy(function_version_attrs),
+            loaded=True)
+
+        return function_version
+
+    @staticmethod
+    def create_function_versions(attrs=None, count=2):
+        """Create multiple fake function versions.
+
+        :param Dictionary attrs:
+            A dictionary with all atrributes
+        :param int count:
+            The number of function versions to fake
+        :return:
+            A list of FakeResource objects faking the function versions.
+        """
+
+        function_versions = []
+        for i in range(count):
+            function_versions.append(
+                FakeFunctionVersion.create_one_function_version(attrs)
+            )
+
+        return function_versions
+
+    @staticmethod
+    def get_function_versions(function_versions=None, count=2):
+        """Get an iterable Mock object with a list of faked function versions.
+
+        If function versions list is provided, then initialize the Mock
+        object with the list. Otherwise create one.
+
+        :param List function_versions:
+            A list of FakeResource faking function versions
+        :param int count:
+            The number of function versions to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            function versions.
+        """
+
+        if function_versions is None:
+            function_versions = FakeFunctionVersion.create_function_versions(
+                count=count
+            )
+
+        return mock.Mock(side_effect=function_versions)
