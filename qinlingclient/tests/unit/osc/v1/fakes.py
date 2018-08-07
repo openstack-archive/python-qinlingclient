@@ -32,6 +32,7 @@ class FakeQinlingClient(object):
         self.functions = mock.Mock()
         self.function_executions = mock.Mock()
         self.function_versions = mock.Mock()
+        self.function_workers = mock.Mock()
 
 
 class TestQinlingClient(utils.TestCommand):
@@ -385,3 +386,76 @@ class FakeFunctionVersion(object):
             )
 
         return mock.Mock(side_effect=function_versions)
+
+
+class FakeFunctionWorker(object):
+    """Fake one or more function workers."""
+
+    @staticmethod
+    def create_one_function_worker(attrs=None):
+        """Create a fake function worker.
+
+        :param Dictionary attrs:
+            A dictionary with all atrributes
+        :return:
+            A FakeResource object, with function_id, worker_name, etc.
+        """
+
+        attrs = attrs or {}
+        # Set default attributes.
+        function_worker_attrs = {
+            'function_id': str(uuid.uuid4()),
+            'worker_name': 'worker-' + uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        function_worker_attrs.update(attrs)
+
+        function_worker = fakes.FakeResource(
+            info=copy.deepcopy(function_worker_attrs),
+            loaded=True)
+
+        return function_worker
+
+    @staticmethod
+    def create_function_workers(attrs=None, count=2):
+        """Create multiple fake function workers.
+
+        :param Dictionary attrs:
+            A dictionary with all atrributes
+        :param int count:
+            The number of function workers to fake
+        :return:
+            A list of FakeResource objects faking the function workers.
+        """
+
+        function_workers = []
+        for i in range(count):
+            function_workers.append(
+                FakeFunctionWorker.create_one_function_worker(attrs)
+            )
+
+        return function_workers
+
+    @staticmethod
+    def get_function_workers(function_workers=None, count=2):
+        """Get an iterable Mock object with a list of faked function workers.
+
+        If function workers list is provided, then initialize the Mock
+        object with the list. Otherwise create one.
+
+        :param List function_workers:
+            A list of FakeResource faking function workers
+        :param int count:
+            The number of function workers to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            function workers.
+        """
+
+        if function_workers is None:
+            function_workers = FakeFunctionWorker.create_function_workers(
+                count=count
+            )
+
+        return mock.Mock(side_effect=function_workers)
