@@ -33,6 +33,7 @@ class FakeQinlingClient(object):
         self.function_executions = mock.Mock()
         self.function_versions = mock.Mock()
         self.function_workers = mock.Mock()
+        self.jobs = mock.Mock()
 
 
 class TestQinlingClient(utils.TestCommand):
@@ -459,3 +460,80 @@ class FakeFunctionWorker(object):
             )
 
         return mock.Mock(side_effect=function_workers)
+
+
+class FakeJob(object):
+    """Fake one or more jobs."""
+
+    @staticmethod
+    def create_one_job(attrs=None):
+        """Create a fake job.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, name, etc.
+        """
+
+        attrs = attrs or {}
+        # Set default attributes.
+        job_attrs = {
+            'id': str(uuid.uuid4()),
+            'name': 'job-name-' + uuid.uuid4().hex,
+            'count': 3,
+            'status': 'RUNNING',
+            'function_id': str(uuid.uuid4()),
+            'function_version': 0,
+            'function_input': '{"FAKE_INPUT_KEY": "FAKE_INPUT_VALUE"}',
+            'pattern': '0 * * * *',  # Once per hour
+            'first_execution_time': '2018-08-08T08:00:00',
+            'next_execution_time': '2018-08-08T10:00:00',
+            'project_id': str(uuid.uuid4()),
+            'created_at': '2018-07-26 09:00:00',
+            'updated_at': '2018-07-26 09:00:30',
+        }
+
+        # Overwrite default attributes.
+        job_attrs.update(attrs)
+
+        job = fakes.FakeResource(info=copy.deepcopy(job_attrs), loaded=True)
+        return job
+
+    @staticmethod
+    def create_jobs(attrs=None, count=2):
+        """Create multiple fake jobs.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of jobs to fake
+        :return:
+            A list of FakeResource objects faking the jobs.
+        """
+
+        jobs = []
+        for i in range(count):
+            jobs.append(FakeJob.create_one_job(attrs))
+
+        return jobs
+
+    @staticmethod
+    def get_jobs(jobs=None, count=2):
+        """Get an iterable mock object with a list of faked jobs.
+
+        If jobs list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List jobs:
+            A list of FakeResource faking jobs
+        :param int count:
+            The number of jobs to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            jobs.
+        """
+
+        if jobs is None:
+            jobs = FakeJob.create_jobs(count=count)
+
+        return mock.Mock(side_effect=jobs)
