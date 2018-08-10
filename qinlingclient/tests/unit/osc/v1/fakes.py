@@ -34,6 +34,7 @@ class FakeQinlingClient(object):
         self.function_versions = mock.Mock()
         self.function_workers = mock.Mock()
         self.jobs = mock.Mock()
+        self.webhooks = mock.Mock()
 
 
 class TestQinlingClient(utils.TestCommand):
@@ -537,3 +538,76 @@ class FakeJob(object):
             jobs = FakeJob.create_jobs(count=count)
 
         return mock.Mock(side_effect=jobs)
+
+
+class FakeWebhook(object):
+    """Fake one or more webhooks."""
+
+    @staticmethod
+    def create_one_webhook(attrs=None):
+        """Create a fake webhook.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id, function_id, etc.
+        """
+
+        attrs = attrs or {}
+        # Set default attributes.
+        webhook_attrs = {
+            'id': str(uuid.uuid4()),
+            'function_id': str(uuid.uuid4()),
+            'function_version': 0,
+            'description': 'webhook-description-' + uuid.uuid4().hex,
+            'project_id': str(uuid.uuid4()),
+            'created_at': '2018-07-26 09:00:00',
+            'updated_at': '2018-07-26 09:00:30',
+            'webhook_url': 'http://HOST:PORT/v1/webhooks/FAKE_ID/invoke',
+        }
+
+        # Overwrite default attributes.
+        webhook_attrs.update(attrs)
+
+        webhook = fakes.FakeResource(info=copy.deepcopy(webhook_attrs),
+                                     loaded=True)
+        return webhook
+
+    @staticmethod
+    def create_webhooks(attrs=None, count=2):
+        """Create multiple fake webhooks.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of webhooks to fake
+        :return:
+            A list of FakeResource objects faking the webhooks.
+        """
+
+        webhooks = []
+        for i in range(count):
+            webhooks.append(FakeWebhook.create_one_webhook(attrs))
+
+        return webhooks
+
+    @staticmethod
+    def get_webhooks(webhooks=None, count=2):
+        """Get an iterable mock object with a list of faked webhooks.
+
+        If webhooks list is provided, then initialize the Mock object with the
+        list. Otherwise create one.
+
+        :param List webhooks:
+            A list of FakeResource faking webhooks
+        :param int count:
+            The number of webhooks to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            webhooks.
+        """
+
+        if webhooks is None:
+            webhooks = FakeWebhook.create_webhooks(count=count)
+
+        return mock.Mock(side_effect=webhooks)
