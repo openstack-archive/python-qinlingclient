@@ -35,6 +35,7 @@ class FakeQinlingClient(object):
         self.function_workers = mock.Mock()
         self.jobs = mock.Mock()
         self.webhooks = mock.Mock()
+        self.function_aliases = mock.Mock()
 
 
 class TestQinlingClient(utils.TestCommand):
@@ -611,3 +612,79 @@ class FakeWebhook(object):
             webhooks = FakeWebhook.create_webhooks(count=count)
 
         return mock.Mock(side_effect=webhooks)
+
+
+class FakeFunctionAlias(object):
+    """Fake one or more function aliases."""
+
+    @staticmethod
+    def create_one_function_alias(attrs=None):
+        """Create a fake function alias.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with name, function_id, etc.
+        """
+
+        attrs = attrs or {}
+        # Set default attributes
+        function_alias_attrs = {
+            'name': 'function-alias-name-' + uuid.uuid4().hex,
+            'function_id': str(uuid.uuid4()),
+            'description': 'function-alias-description-' + uuid.uuid4().hex,
+            'function_version': 0,
+            'project_id': str(uuid.uuid4()),
+            'created_at': '2018-07-26 09:00:00',
+            'updated_at': '2018-07-26 09:00:30',
+        }
+
+        # Overwrite default attributes
+        function_alias_attrs.update(attrs)
+
+        function_alias = fakes.FakeResource(
+            info=copy.deepcopy(function_alias_attrs), loaded=True)
+        return function_alias
+
+    @staticmethod
+    def create_function_aliases(attrs=None, count=2):
+        """Create multiple fake function aliases.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of function aliases to fake
+        :return:
+            A list of FakeResource objects faking the function aliases.
+        """
+
+        function_aliases = []
+        for i in range(count):
+            function_aliases.append(
+                FakeFunctionAlias.create_one_function_alias(attrs)
+            )
+
+        return function_aliases
+
+    @staticmethod
+    def get_function_aliases(function_aliases=None, count=2):
+        """Get an iterable mock object with a list of faked function aliases.
+
+        If function aliases list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List function_aliases:
+            A list of FakeResource faking function aliases
+        :param int count:
+            The number of function aliases to fake
+        :return
+            An iterable Mock object with side_effect set to a list of faked
+            function aliases.
+        """
+
+        if function_aliases is None:
+            function_aliases = FakeFunctionAlias.create_function_aliases(
+                count=count
+            )
+
+        return mock.Mock(side_effect=function_aliases)
