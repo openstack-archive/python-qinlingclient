@@ -209,7 +209,7 @@ class Create(command.ShowOne):
                 )
             if not runtime:
                 raise exceptions.QinlingClientException(
-                    'Runtime needs to be specified for package type function.'
+                    'Runtime needs to be specified for swift type function.'
                 )
 
             code = {

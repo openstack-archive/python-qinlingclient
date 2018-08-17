@@ -180,7 +180,7 @@ class TestDeleteFunctionVersion(TestFunctionVersion):
         arglist = [function_id, version_number]
         verifylist = [
             ('function_id', function_id),
-            ('versio_number', version_number),
+            ('version_number', version_number),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

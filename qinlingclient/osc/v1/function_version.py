@@ -83,7 +83,7 @@ class Delete(base.QinlingDeleter):
             help="Function ID.",
         )
         parser.add_argument(
-            "versio_number",
+            "version_number",
             help="Function version.",
         )
 
@@ -93,7 +93,7 @@ class Delete(base.QinlingDeleter):
         client = self.app.client_manager.function_engine
 
         client.function_versions.delete(parsed_args.function_id,
-                                        parsed_args.versio_number)
+                                        parsed_args.version_number)
 
 
 class Show(command.ShowOne):

@@ -565,7 +565,7 @@ class TestCreateFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Runtime needs to be specified for package type function\.$',
+            '^Runtime needs to be specified for swift type function\.$',
             self.cmd.take_action, parsed_args)
 
     def test_function_create_image_required_options(self):
