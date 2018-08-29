@@ -941,7 +941,7 @@ class TestUpdateFunction(TestFunction):
             'source': 'swift',
             'swift': {
                 'container': self.container_name,
-                'object': None
+                'object': "origin_obj"
             }
         }
         attrs = {'id': self.function_id, 'code': code}
@@ -954,6 +954,12 @@ class TestUpdateFunction(TestFunction):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
+        code = {
+            'source': 'swift',
+            'swift': {
+                'container': self.container_name,
+            }
+        }
         call_arguments = {'code': code}
         call_arguments.update(self.base_call_arguments_none_values)
         self.client.functions.update.assert_called_once_with(

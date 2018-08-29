@@ -351,13 +351,12 @@ class Update(command.ShowOne):
             code = {'source': 'package'}
             zip_file = _get_package_file(parsed_args.package, parsed_args.file)
         elif parsed_args.container or parsed_args.object:
-            code = {
-                'source': 'swift',
-                'swift': {
-                    'container': parsed_args.container,
-                    'object': parsed_args.object
-                }
-            }
+            swift = {}
+            if parsed_args.container:
+                swift["container"] = parsed_args.container
+            if parsed_args.object:
+                swift["object"] = parsed_args.object
+            code = {'source': 'swift', 'swift': swift}
 
         if zip_file:
             with open(zip_file, 'rb') as package:
