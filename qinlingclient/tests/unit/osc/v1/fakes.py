@@ -185,6 +185,7 @@ class FakeFunction(object):
             'updated_at': '2018-07-26 09:00:30',
             'cpu': 100,
             'memory_size': 33554432,
+            'timeout': 5
         }
 
         # Overwrite default attributes.

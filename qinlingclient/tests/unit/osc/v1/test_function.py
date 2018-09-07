@@ -170,7 +170,7 @@ class TestFunction(fakes.TestQinlingClient):
             self.data.append((f.id, f.name, f.description, f.count, f.code,
                               f.runtime_id, f.entry, f.project_id,
                               f.created_at, f.updated_at,
-                              f.cpu, f.memory_size))
+                              f.cpu, f.memory_size, f.timeout))
 
 
 class TestListFunction(TestFunction):
@@ -241,21 +241,24 @@ class TestCreateFunction(TestFunction):
         self.container_name = 'FAKE_SWIFT_CONTAINER'
         self.object_name = 'FAKE_SWIFT_OBJECT'
         self.image = 'FAKE_IMAGE'
-        self.cpu = str(200)
-        self.memory_size = str(64 * 1024 * 1024)
+        self.cpu = 200
+        self.memory_size = 64 * 1024 * 1024
+        self.timeout = 10
         # The arguments below are used in every create call despite of the
         # function type.
-        self.base_call_arguments_none_values = {
+        self.base_call_arguments_default_values = {
             'name': None,
             'entry': None,
             'cpu': None,
-            'memory_size': None
+            'memory_size': None,
+            'timeout': 5
         }
-        self.base_call_arguments_default_values = {
+        self.base_call_arguments_passed_values = {
             'name': self.function_name,
             'entry': self.function_entry,
             'cpu': self.cpu,
-            'memory_size': self.memory_size
+            'memory_size': self.memory_size,
+            'timeout': self.timeout
         }
 
     def _create_fake_function(self, attrs=None):
@@ -265,13 +268,13 @@ class TestCreateFunction(TestFunction):
         data = (f.id, f.name, f.description, f.count, f.code,
                 f.runtime_id, f.entry, f.project_id,
                 f.created_at, f.updated_at,
-                f.cpu, f.memory_size)
+                f.cpu, f.memory_size, f.timeout)
         return data
 
     def _get_verify_list(self, runtime=None, name=None, entry=None,
                          file_path=None, package_path=None,
                          container_name=None, object_name=None,
-                         image=None, cpu=None, memory_size=None):
+                         image=None, cpu=None, memory_size=None, timeout=5):
         return [
             ('runtime', runtime),
             ('name', name),
@@ -282,14 +285,16 @@ class TestCreateFunction(TestFunction):
             ('object', object_name),
             ('image', image),
             ('cpu', cpu),
-            ('memory_size', memory_size)
+            ('memory_size', memory_size),
+            ('timeout', timeout)
         ]
 
-    def _get_verify_list_with_default_value(self, **kwargs):
+    def _get_verify_list_with_passed_value(self, **kwargs):
         kwargs.update({'name': self.function_name,
                        'entry': self.function_entry,
                        'cpu': self.cpu,
-                       'memory_size': self.memory_size})
+                       'memory_size': self.memory_size,
+                       'timeout': self.timeout})
         return self._get_verify_list(**kwargs)
 
     def test_function_create_no_option(self):
@@ -345,7 +350,7 @@ class TestCreateFunction(TestFunction):
         call_arguments = {'runtime': self.runtime_id,
                           'code': code,
                           'package': package_file}
-        call_arguments.update(self.base_call_arguments_none_values)
+        call_arguments.update(self.base_call_arguments_default_values)
         self.client.functions.create.assert_called_once_with(**call_arguments)
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
@@ -377,6 +382,7 @@ class TestCreateFunction(TestFunction):
             'entry': self.function_entry,
             'cpu': self.cpu,
             'memory_size': self.memory_size,
+            'timeout': self.timeout
         }
         created_data = self._create_fake_function(attrs)
 
@@ -395,17 +401,18 @@ class TestCreateFunction(TestFunction):
             '--container', self.container_name,
             '--object', self.object_name,
             '--image', self.image,
-            '--cpu', self.cpu,
-            '--memory-size', self.memory_size
+            '--cpu', str(self.cpu),
+            '--memory-size', str(self.memory_size),
+            '--timeout', str(self.timeout)
         ]
-        verifylist = self._get_verify_list_with_default_value(
+        verifylist = self._get_verify_list_with_passed_value(
             runtime=self.runtime_name,
             package_path=self.package_path,
             container_name=self.container_name,
             object_name=self.object_name,
             image=self.image,
             cpu=self.cpu,
-            memory_size=self.memory_size
+            memory_size=self.memory_size,
         )
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -414,7 +421,7 @@ class TestCreateFunction(TestFunction):
         call_arguments = {'runtime': self.runtime_id,
                           'code': code,
                           'package': package_file}
-        call_arguments.update(self.base_call_arguments_default_values)
+        call_arguments.update(self.base_call_arguments_passed_values)
         self.client.functions.create.assert_called_once_with(**call_arguments)
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
@@ -465,7 +472,7 @@ class TestCreateFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'runtime': self.runtime_id, 'code': code}
-        call_arguments.update(self.base_call_arguments_none_values)
+        call_arguments.update(self.base_call_arguments_default_values)
         self.client.functions.create.assert_called_once_with(**call_arguments)
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
@@ -492,6 +499,7 @@ class TestCreateFunction(TestFunction):
             'entry': self.function_entry,
             'cpu': self.cpu,
             'memory_size': self.memory_size,
+            'timeout': self.timeout
         }
         created_data = self._create_fake_function(attrs)
 
@@ -505,10 +513,11 @@ class TestCreateFunction(TestFunction):
             '--container', self.container_name,
             '--object', self.object_name,
             '--image', self.image,
-            '--cpu', self.cpu,
-            '--memory-size', self.memory_size
+            '--cpu', str(self.cpu),
+            '--memory-size', str(self.memory_size),
+            '--timeout', str(self.timeout)
         ]
-        verifylist = self._get_verify_list_with_default_value(
+        verifylist = self._get_verify_list_with_passed_value(
             runtime=self.runtime_name,
             container_name=self.container_name,
             object_name=self.object_name,
@@ -519,7 +528,7 @@ class TestCreateFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'runtime': self.runtime_id, 'code': code}
-        call_arguments.update(self.base_call_arguments_default_values)
+        call_arguments.update(self.base_call_arguments_passed_values)
         self.client.functions.create.assert_called_once_with(**call_arguments)
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
@@ -585,7 +594,7 @@ class TestCreateFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'code': code}
-        call_arguments.update(self.base_call_arguments_none_values)
+        call_arguments.update(self.base_call_arguments_default_values)
         self.client.functions.create.assert_called_once_with(**call_arguments)
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
@@ -601,6 +610,7 @@ class TestCreateFunction(TestFunction):
             'entry': self.function_entry,
             'cpu': self.cpu,
             'memory_size': self.memory_size,
+            'timeout': self.timeout
         }
         created_data = self._create_fake_function(attrs)
 
@@ -608,19 +618,28 @@ class TestCreateFunction(TestFunction):
             '--name', self.function_name,
             '--entry', self.function_entry,
             '--image', self.image,
-            '--cpu', self.cpu,
-            '--memory-size', self.memory_size
+            '--cpu', str(self.cpu),
+            '--memory-size', str(self.memory_size),
+            '--timeout', str(self.timeout)
         ]
-        verifylist = self._get_verify_list_with_default_value(image=self.image)
+        verifylist = self._get_verify_list_with_passed_value(image=self.image)
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'code': code}
-        call_arguments.update(self.base_call_arguments_default_values)
+        call_arguments.update(self.base_call_arguments_passed_values)
         self.client.functions.create.assert_called_once_with(**call_arguments)
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
+
+    def test_function_create_timeout_invalid(self):
+        arglist = ['--timeout', '-1']
+        verifylist = self._get_verify_list(timeout=-1)
+
+        self.assertRaises(osc_tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestDeleteFunction(TestFunction):
@@ -727,23 +746,26 @@ class TestUpdateFunction(TestFunction):
         self.container_name = 'FAKE_SWIFT_CONTAINER'
         self.object_name = 'FAKE_SWIFT_OBJECT'
         self.image = 'FAKE_IMAGE'
-        self.cpu = str(200)
-        self.memory_size = str(64 * 1024 * 1024)
+        self.cpu = 200
+        self.memory_size = 64 * 1024 * 1024
+        self.timeout = 10
         # The arguments below are used in every update despite of the
         # function type.
-        self.base_call_arguments_none_values = {
+        self.base_call_arguments_default_values = {
             'name': None,
             'description': None,
             'entry': None,
             'cpu': None,
-            'memory_size': None
+            'memory_size': None,
+            'timeout': None,
         }
-        self.base_call_arguments_default_values = {
+        self.base_call_arguments_passed_values = {
             'name': self.function_name,
             'description': self.function_description,
             'entry': self.function_entry,
             'cpu': self.cpu,
-            'memory_size': self.memory_size
+            'memory_size': self.memory_size,
+            'timeout': self.timeout
         }
 
     def _update_fake_function(self, attrs=None):
@@ -753,13 +775,13 @@ class TestUpdateFunction(TestFunction):
         data = (f.id, f.name, f.description, f.count, f.code,
                 f.runtime_id, f.entry, f.project_id,
                 f.created_at, f.updated_at,
-                f.cpu, f.memory_size)
+                f.cpu, f.memory_size, f.timeout)
         return data
 
     def _get_verify_list(self, function_id=None, name=None, description=None,
                          entry=None, file_path=None, package_path=None,
                          container_name=None, object_name=None,
-                         cpu=None, memory_size=None):
+                         cpu=None, memory_size=None, timeout=None):
         return [
             ('id', function_id),
             ('name', name),
@@ -770,15 +792,17 @@ class TestUpdateFunction(TestFunction):
             ('container', container_name),
             ('object', object_name),
             ('cpu', cpu),
-            ('memory_size', memory_size)
+            ('memory_size', memory_size),
+            ('timeout', timeout)
         ]
 
-    def _get_verify_list_with_default_value(self, **kwargs):
+    def _get_verify_list_with_passed_value(self, **kwargs):
         kwargs.update({'name': self.function_name,
                        'description': self.function_description,
                        'entry': self.function_entry,
                        'cpu': self.cpu,
-                       'memory_size': self.memory_size})
+                       'memory_size': self.memory_size,
+                       'timeout': self.timeout})
         return self._get_verify_list(**kwargs)
 
     def test_function_update_no_option(self):
@@ -804,7 +828,7 @@ class TestUpdateFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'code': None}
-        call_arguments.update(self.base_call_arguments_none_values)
+        call_arguments.update(self.base_call_arguments_default_values)
         self.client.functions.update.assert_called_once_with(
             self.function_id, **call_arguments)
         self.assertEqual(self.columns, columns)
@@ -817,7 +841,8 @@ class TestUpdateFunction(TestFunction):
                  'description': self.function_description,
                  'entry': self.function_entry,
                  'cpu': self.cpu,
-                 'memory_size': self.memory_size}
+                 'memory_size': self.memory_size,
+                 'timeout': self.timeout}
         updated_data = self._update_fake_function(attrs)
 
         arglist = [
@@ -825,17 +850,18 @@ class TestUpdateFunction(TestFunction):
             '--name', self.function_name,
             '--description', self.function_description,
             '--entry', self.function_entry,
-            '--cpu', self.cpu,
-            '--memory-size', self.memory_size
+            '--cpu', str(self.cpu),
+            '--memory-size', str(self.memory_size),
+            '--timeout', str(self.timeout)
         ]
-        verifylist = self._get_verify_list_with_default_value(
+        verifylist = self._get_verify_list_with_passed_value(
             function_id=self.function_id)
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'code': None}
-        call_arguments.update(self.base_call_arguments_default_values)
+        call_arguments.update(self.base_call_arguments_passed_values)
         self.client.functions.update.assert_called_once_with(
             self.function_id, **call_arguments)
         self.assertEqual(self.columns, columns)
@@ -878,7 +904,7 @@ class TestUpdateFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'code': code, 'package': package_file}
-        call_arguments.update(self.base_call_arguments_none_values)
+        call_arguments.update(self.base_call_arguments_default_values)
         self.client.functions.update.assert_called_once_with(
             self.function_id, **call_arguments)
         self.assertEqual(self.columns, columns)
@@ -911,9 +937,10 @@ class TestUpdateFunction(TestFunction):
                    '--entry', self.function_entry,
                    '--container', self.container_name,
                    '--object', self.object_name,
-                   '--cpu', self.cpu,
-                   '--memory-size', self.memory_size]
-        verifylist = self._get_verify_list_with_default_value(
+                   '--cpu', str(self.cpu),
+                   '--memory-size', str(self.memory_size),
+                   '--timeout', str(self.timeout)]
+        verifylist = self._get_verify_list_with_passed_value(
             function_id=self.function_id,
             package_path=self.package_path,
             container_name=self.container_name,
@@ -923,7 +950,7 @@ class TestUpdateFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'code': code, 'package': package_file}
-        call_arguments.update(self.base_call_arguments_default_values)
+        call_arguments.update(self.base_call_arguments_passed_values)
         self.client.functions.update.assert_called_once_with(
             self.function_id, **call_arguments)
         self.assertEqual(self.columns, columns)
@@ -961,7 +988,7 @@ class TestUpdateFunction(TestFunction):
             }
         }
         call_arguments = {'code': code}
-        call_arguments.update(self.base_call_arguments_none_values)
+        call_arguments.update(self.base_call_arguments_default_values)
         self.client.functions.update.assert_called_once_with(
             self.function_id, **call_arguments)
         self.assertEqual(self.columns, columns)
@@ -989,9 +1016,10 @@ class TestUpdateFunction(TestFunction):
                    '--name', self.function_name,
                    '--description', self.function_description,
                    '--entry', self.function_entry,
-                   '--cpu', self.cpu,
-                   '--memory-size', self.memory_size]
-        verifylist = self._get_verify_list_with_default_value(
+                   '--cpu', str(self.cpu),
+                   '--memory-size', str(self.memory_size),
+                   '--timeout', str(self.timeout)]
+        verifylist = self._get_verify_list_with_passed_value(
             function_id=self.function_id,
             container_name=self.container_name,
             object_name=self.object_name)
@@ -1000,11 +1028,20 @@ class TestUpdateFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         call_arguments = {'code': code}
-        call_arguments.update(self.base_call_arguments_default_values)
+        call_arguments.update(self.base_call_arguments_passed_values)
         self.client.functions.update.assert_called_once_with(
             self.function_id, **call_arguments)
         self.assertEqual(self.columns, columns)
         self.assertEqual(updated_data, data)
+
+    def test_function_update_timeout_invalid(self):
+        arglist = [self.function_id, '--timeout', '-1']
+        verifylist = self._get_verify_list(function_id=self.function_id,
+                                           timeout=-1)
+
+        self.assertRaises(osc_tests_utils.ParserException,
+                          self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestDetachFunction(TestFunction):

@@ -50,7 +50,8 @@ FUNCTION_COLUMNS = (
     'created_at',
     'updated_at',
     'cpu',
-    'memory_size'
+    'memory_size',
+    'timeout'
 )
 EXECUTION_COLUMNS = (
     'id',

@@ -140,11 +140,20 @@ class Create(command.ShowOne):
         )
         parser.add_argument(
             "--cpu",
+            type=q_utils.check_positive,
             help="Limit of cpu resource(unit: millicpu).",
         )
         parser.add_argument(
             "--memory-size",
+            type=q_utils.check_positive,
             help="Limit of memory resource(unit: bytes).",
+        )
+        parser.add_argument(
+            "--timeout",
+            type=q_utils.check_positive,
+            default=5,
+            help="The function execution time at which Qinling should "
+                 "terminate the function. The default is 5 seconds",
         )
 
         return parser
@@ -195,7 +204,8 @@ class Create(command.ShowOne):
                     package=package,
                     entry=parsed_args.entry,
                     cpu=parsed_args.cpu,
-                    memory_size=parsed_args.memory_size
+                    memory_size=parsed_args.memory_size,
+                    timeout=parsed_args.timeout
                 )
 
             # Delete zip file the client created
@@ -226,7 +236,8 @@ class Create(command.ShowOne):
                 code=code,
                 entry=parsed_args.entry,
                 cpu=parsed_args.cpu,
-                memory_size=parsed_args.memory_size
+                memory_size=parsed_args.memory_size,
+                timeout=parsed_args.timeout
             )
 
         elif code_type == 'image':
@@ -240,7 +251,8 @@ class Create(command.ShowOne):
                 code=code,
                 entry=parsed_args.entry,
                 cpu=parsed_args.cpu,
-                memory_size=parsed_args.memory_size
+                memory_size=parsed_args.memory_size,
+                timeout=parsed_args.timeout
             )
 
         return self.columns, utils.get_item_properties(function, self.columns)
@@ -332,11 +344,19 @@ class Update(command.ShowOne):
         )
         parser.add_argument(
             "--cpu",
+            type=q_utils.check_positive,
             help="Limit of cpu resource(unit: millicpu).",
         )
         parser.add_argument(
             "--memory-size",
+            type=q_utils.check_positive,
             help="Limit of memory resource(unit: bytes).",
+        )
+        parser.add_argument(
+            "--timeout",
+            type=q_utils.check_positive,
+            help="The function execution time at which Qinling should "
+                 "terminate the function. The default is 5 seconds",
         )
 
         return parser
@@ -368,7 +388,8 @@ class Update(command.ShowOne):
                     description=parsed_args.description,
                     entry=parsed_args.entry,
                     cpu=parsed_args.cpu,
-                    memory_size=parsed_args.memory_size
+                    memory_size=parsed_args.memory_size,
+                    timeout=parsed_args.timeout
                 )
         else:
             func = client.functions.update(
@@ -378,7 +399,8 @@ class Update(command.ShowOne):
                 description=parsed_args.description,
                 entry=parsed_args.entry,
                 cpu=parsed_args.cpu,
-                memory_size=parsed_args.memory_size
+                memory_size=parsed_args.memory_size,
+                timeout=parsed_args.timeout
             )
 
         return self.columns, utils.get_item_properties(func, self.columns)

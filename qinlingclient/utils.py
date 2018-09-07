@@ -12,6 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import argparse
 import hashlib
 
 
@@ -33,3 +34,12 @@ def find_resource_id_by_name(manager, name):
     # resources for the name are found.
     resource = manager.find(name=name)
     return resource.id
+
+
+def check_positive(value):
+    ivalue = int(value)
+    if ivalue <= 0:
+        raise argparse.ArgumentTypeError(
+            "%s is an invalid positive int value" % value
+        )
+    return ivalue
