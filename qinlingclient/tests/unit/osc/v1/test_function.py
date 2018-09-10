@@ -668,6 +668,20 @@ class TestDeleteFunction(TestFunction):
         self.assertIsNone(result)
         self.client.functions.delete.assert_called_once_with(function_id)
 
+    @mock.patch('qinlingclient.utils.find_resource_id_by_name')
+    def test_function_delete_one_by_name(self, mock_find):
+        name = self._functions[0].name
+        id = self._functions[0].id
+        mock_find.return_value = id
+        arglist = [name]
+        verifylist = [('function', [name])]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.client.functions.delete.assert_called_once_with(id)
+
     def test_function_delete_multiple(self):
         function_ids = [r.id for r in self._functions]
         arglist = function_ids
@@ -681,6 +695,24 @@ class TestDeleteFunction(TestFunction):
         self.assertEqual(len(function_ids),
                          self.client.functions.delete.call_count)
         self.client.functions.delete.assert_has_calls(calls)
+
+    @mock.patch('qinlingclient.utils.find_resource_id_by_name')
+    def test_function_delete_multiple_with_names(self, mock_find):
+        function_ids = [r.id for r in self._functions[:-1]]
+        function_names = [self._functions[-1].name]
+        mock_find.return_value = self._functions[-1].id
+        arglist = function_ids + function_names
+        verifylist = [('function', function_ids + function_names)]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+
+        expected = [mock.call(f_id) for f_id in function_ids]
+        expected.append(mock.call(self._functions[-1].id))
+
+        self.client.functions.delete.assert_has_calls(expected)
 
     def test_function_delete_multiple_exception(self):
         function_ids = [r.id for r in self._functions]
@@ -728,6 +760,22 @@ class TestShowFunction(TestFunction):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.client.functions.get.assert_called_once_with(function_id)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data[0], data)
+
+    @mock.patch("qinlingclient.utils.find_resource_id_by_name")
+    def test_function_show_by_name(self, mock_find):
+        name = self._functions[0].name
+        id = self._functions[0].id
+        mock_find.return_value = id
+        arglist = [name]
+        verifylist = [('function', name)]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        mock_find.assert_called_once_with(self.client.functions, name)
+        self.client.functions.get.assert_called_once_with(id)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data[0], data)
 
@@ -783,7 +831,7 @@ class TestUpdateFunction(TestFunction):
                          container_name=None, object_name=None,
                          cpu=None, memory_size=None, timeout=None):
         return [
-            ('id', function_id),
+            ('function', function_id),
             ('name', name),
             ('description', description),
             ('entry', entry),
@@ -831,6 +879,31 @@ class TestUpdateFunction(TestFunction):
         call_arguments.update(self.base_call_arguments_default_values)
         self.client.functions.update.assert_called_once_with(
             self.function_id, **call_arguments)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(updated_data, data)
+
+    @mock.patch('qinlingclient.utils.find_resource_id_by_name')
+    def test_function_update_by_name(self, mock_find):
+        attrs = {'name': self.function_name, 'timeout': self.timeout}
+        updated_data = self._update_fake_function(attrs)
+        mock_find.return_value = self.function_id
+
+        arglist = [self.function_name, '--timeout', str(self.timeout)]
+        verifylist = self._get_verify_list(function_id=self.function_name,
+                                           timeout=self.timeout)
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        mock_find.assert_called_once_with(self.client.functions,
+                                          self.function_name)
+
+        call_arguments = {'code': None}
+        call_arguments.update(self.base_call_arguments_default_values)
+        call_arguments.update({'timeout': self.timeout})
+        self.client.functions.update.assert_called_once_with(
+            self.function_id, **call_arguments)
+
         self.assertEqual(self.columns, columns)
         self.assertEqual(updated_data, data)
 
@@ -1127,6 +1200,33 @@ class TestDownloadFunction(TestFunction):
                                                           download=True)
         open_mock.assert_called_once_with(
             '%s/%s.zip' % (self.cwd, function_id), 'wb')
+        copyfile_mock.assert_called_once_with(self.raw_data, target)
+
+    @mock.patch('os.getcwd')
+    @mock.patch('qinlingclient.osc.v1.function.open')
+    @mock.patch('shutil.copyfileobj')
+    @mock.patch('qinlingclient.utils.find_resource_id_by_name')
+    def test_function_download_by_name(self, find_mock, copyfile_mock,
+                                       open_mock, getcwd_mock):
+        name = self._functions[0].name
+        id = self._functions[0].id
+        find_mock.return_value = id
+        getcwd_mock.return_value = self.cwd
+        target = mock.Mock()
+        open_mock.return_value.__enter__.return_value = target
+
+        arglist = [name]
+        verifylist = [('function', name)]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        find_mock.assert_called_once_with(self.client.functions, name)
+        self.client.functions.get.assert_called_once_with(id,
+                                                          download=True)
+        open_mock.assert_called_once_with(
+            '%s/%s.zip' % (self.cwd, id), 'wb')
         copyfile_mock.assert_called_once_with(self.raw_data, target)
 
     @mock.patch('os.getcwd')

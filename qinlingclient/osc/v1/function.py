@@ -266,7 +266,7 @@ class Delete(base.QinlingDeleter):
             'function',
             nargs='+',
             metavar='FUNCTION',
-            help='Id of function(s).'
+            help='Id or name of function(s).'
         )
 
         return parser
@@ -276,7 +276,14 @@ class Delete(base.QinlingDeleter):
         self.delete = client.functions.delete
         self.resource = 'function'
 
-        self.delete_resources(parsed_args.function)
+        ids = []
+        for function_id in parsed_args.function:
+            if not uuidutils.is_uuid_like(function_id):
+                function_id = q_utils.find_resource_id_by_name(
+                    client.functions, function_id)
+            ids.append(function_id)
+
+        self.delete_resources(ids)
 
 
 class Show(command.ShowOne):
@@ -284,14 +291,19 @@ class Show(command.ShowOne):
 
     def get_parser(self, prog_name):
         parser = super(Show, self).get_parser(prog_name)
-        parser.add_argument('function', help='Function ID.')
+        parser.add_argument('function', help='Function ID or name.')
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
 
-        function = client.functions.get(parsed_args.function)
+        function_id = parsed_args.function
+        if not uuidutils.is_uuid_like(function_id):
+            function_id = q_utils.find_resource_id_by_name(
+                client.functions, function_id)
+
+        function = client.functions.get(function_id)
         return self.columns, utils.get_item_properties(function,
                                                        self.columns)
 
@@ -303,8 +315,8 @@ class Update(command.ShowOne):
         parser = super(Update, self).get_parser(prog_name)
 
         parser.add_argument(
-            'id',
-            help='Function ID.'
+            'function',
+            help='Function ID or name.'
         )
         parser.add_argument(
             "--name",
@@ -367,6 +379,11 @@ class Update(command.ShowOne):
         package = None
         zip_file = None
 
+        function_id = parsed_args.function
+        if not uuidutils.is_uuid_like(function_id):
+            function_id = q_utils.find_resource_id_by_name(
+                client.functions, function_id)
+
         if parsed_args.file or parsed_args.package:
             code = {'source': 'package'}
             zip_file = _get_package_file(parsed_args.package, parsed_args.file)
@@ -381,7 +398,7 @@ class Update(command.ShowOne):
         if zip_file:
             with open(zip_file, 'rb') as package:
                 func = client.functions.update(
-                    parsed_args.id,
+                    function_id,
                     code=code,
                     package=package,
                     name=parsed_args.name,
@@ -393,7 +410,7 @@ class Update(command.ShowOne):
                 )
         else:
             func = client.functions.update(
-                parsed_args.id,
+                function_id,
                 code=code,
                 name=parsed_args.name,
                 description=parsed_args.description,
@@ -429,7 +446,7 @@ class Detach(command.Command):
 class Download(command.Command):
     def get_parser(self, prog_name):
         parser = super(Download, self).get_parser(prog_name)
-        parser.add_argument('function', help='Function ID.')
+        parser.add_argument('function', help='Function ID or name.')
         parser.add_argument(
             "-o",
             "--output",
@@ -440,7 +457,13 @@ class Download(command.Command):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
-        res = client.functions.get(parsed_args.function, download=True)
+
+        function_id = parsed_args.function
+        if not uuidutils.is_uuid_like(function_id):
+            function_id = q_utils.find_resource_id_by_name(
+                client.functions, function_id)
+
+        res = client.functions.get(function_id, download=True)
 
         cwd = os.getcwd()
         if parsed_args.output:
@@ -449,7 +472,7 @@ class Download(command.Command):
             else:
                 abs_path = os.path.join(cwd, parsed_args.output)
         else:
-            abs_path = os.path.join(cwd, "%s.zip" % parsed_args.function)
+            abs_path = os.path.join(cwd, "%s.zip" % function_id)
 
         with open(abs_path, 'wb') as target:
             shutil.copyfileobj(res.raw, target)
