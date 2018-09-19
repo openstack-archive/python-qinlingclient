@@ -78,8 +78,7 @@ latex_documents = [
 
 # openstackdocstheme options
 repository_name = 'openstack/python-qinlingclient'
-bug_project = 'qinling'
-bug_tag = 'doc'
+use_storyboard = True
 html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 autoprogram_cliff_application = 'openstack'
