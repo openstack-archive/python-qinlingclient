@@ -1,0 +1,5 @@
+---
+features:
+  - Support to specify function timeout when creating and updating the
+    functions. When the specified timeout is reached, Qinling will terminate
+    the function execution.
