@@ -12,8 +12,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import json
 import uuid
+
+from oslo_serialization import jsonutils
 
 from qinlingclient.common import exceptions
 from qinlingclient.tests.unit.v1 import test_client
@@ -62,7 +63,7 @@ class TestRuntime(test_client.TestQinlingClient):
 
         self.assertEqual(RUNTIME_1, ret.to_dict())
         self.assertEqual(request_data,
-                         json.loads(self.requests_mock.last_request.text))
+                         jsonutils.loads(self.requests_mock.last_request.text))
 
     def test_create_runtime_all_options(self):
         image_name = 'image_name'
@@ -87,7 +88,7 @@ class TestRuntime(test_client.TestQinlingClient):
 
         self.assertEqual(RUNTIME_1, ret.to_dict())
         self.assertEqual(request_data,
-                         json.loads(self.requests_mock.last_request.text))
+                         jsonutils.loads(self.requests_mock.last_request.text))
 
     def test_create_runtime_error(self):
         self.requests_mock.register_uri(

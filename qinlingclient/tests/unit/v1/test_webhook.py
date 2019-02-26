@@ -12,8 +12,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import json
 import uuid
+
+from oslo_serialization import jsonutils
 
 from qinlingclient.common import exceptions
 from qinlingclient.tests.unit.v1 import test_client
@@ -70,7 +71,7 @@ class TestWebhook(test_client.TestQinlingClient):
         )
         ret = self.client.webhooks.create(function_id)
         self.assertEqual(WEBHOOK_1, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_create_webhook_all_options(self):
@@ -92,7 +93,7 @@ class TestWebhook(test_client.TestQinlingClient):
             function_id, function_version=function_version,
             description=description)
         self.assertEqual(WEBHOOK_1, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_create_webhook_error(self):
@@ -191,7 +192,7 @@ class TestWebhook(test_client.TestQinlingClient):
                                           function_id=function_id,
                                           description=description)
         self.assertEqual(WEBHOOK_2, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_update_webhook_error(self):

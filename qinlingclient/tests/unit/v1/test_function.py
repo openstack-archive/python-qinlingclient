@@ -12,10 +12,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import json
 import six
 from six.moves.urllib.parse import urlencode
 import uuid
+
+from oslo_serialization import jsonutils
 
 from qinlingclient.common import exceptions
 from qinlingclient.tests.unit.v1 import test_client
@@ -63,7 +64,7 @@ class TestFunction(test_client.TestQinlingClient):
     def test_create_function(self):
         runtime_id = 'runtime_id'
         code = {'source': 'package', 'md5sum': 'MD5SUM'}
-        data = {'runtime_id': runtime_id, 'code': json.dumps(code)}
+        data = {'runtime_id': runtime_id, 'code': jsonutils.dumps(code)}
         self.requests_mock.register_uri(
             'POST',
             test_client.QINLING_URL + '/v1/functions',
@@ -82,7 +83,7 @@ class TestFunction(test_client.TestQinlingClient):
         package = six.StringIO(package_content)
         cpu = '100'
         memory_size = '33554432'
-        data = {'runtime_id': runtime_id, 'code': json.dumps(code),
+        data = {'runtime_id': runtime_id, 'code': jsonutils.dumps(code),
                 'cpu': cpu, 'memory_size': memory_size}
 
         self.requests_mock.register_uri(
@@ -299,7 +300,7 @@ class TestFunction(test_client.TestQinlingClient):
         resp, text = self.client.functions.scaleup(function_id)
         self.assertEqual('', text)
         self.assertEqual(202, resp.status_code)
-        self.assertEqual(json.dumps({'count': 1}),
+        self.assertEqual(jsonutils.dumps({'count': 1}),
                          self.requests_mock.last_request.text)
 
     def test_scaleup_function_error(self):
@@ -329,7 +330,7 @@ class TestFunction(test_client.TestQinlingClient):
         resp, text = self.client.functions.scaledown(function_id, count=2)
         self.assertEqual('', text)
         self.assertEqual(202, resp.status_code)
-        self.assertEqual(json.dumps({'count': 2}),
+        self.assertEqual(jsonutils.dumps({'count': 2}),
                          self.requests_mock.last_request.text)
 
     def test_scaledown_function_error(self):
