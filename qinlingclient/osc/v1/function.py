@@ -89,6 +89,7 @@ def worker_count(value):
 
 class List(base.QinlingLister):
     columns = base.FUNCTION_COLUMNS
+    filtered_columns = base.FILTERED_FUNCTION_COLUMNS
 
     def _get_resources(self, parsed_args):
         client = self.app.client_manager.function_engine

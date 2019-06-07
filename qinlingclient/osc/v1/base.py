@@ -53,6 +53,10 @@ FUNCTION_COLUMNS = (
     'memory_size',
     'timeout'
 )
+FILTERED_FUNCTION_COLUMNS = (
+    "all_projects",
+    "project_id"
+)
 EXECUTION_COLUMNS = (
     'id',
     'function_id',
@@ -65,6 +69,13 @@ EXECUTION_COLUMNS = (
     'project_id',
     'created_at',
     'updated_at'
+)
+FILTERED_EXECUTION_COLUMNS = (
+    'function_id',
+    'project_id',
+    'all_projects',
+    'status',
+    'description',
 )
 JOB_COLUMNS = (
     'id',
@@ -81,6 +92,10 @@ JOB_COLUMNS = (
     'created_at',
     'updated_at'
 )
+FILTERED_JOB_COLUMNS = (
+    "all_projects",
+    "project_id"
+)
 WORKER_COLUMNS = (
     'function_id',
     'worker_name'
@@ -94,6 +109,10 @@ WEBHOOK_COLUMNS = (
     'created_at',
     'updated_at',
     'webhook_url'
+)
+FILTERED_WEBHOOK_COLUMNS = (
+    "all_projects",
+    "project_id"
 )
 FUNCTION_VERSION_COLUMNS = (
     'id',
@@ -114,11 +133,16 @@ FUNCTION_ALIAS_COLUMNS = (
     'created_at',
     'updated_at'
 )
+FILTERED_FUNCTION_ALIAS_COLUMNS = (
+    "all_projects",
+    "project_id"
+)
 
 
 @six.add_metaclass(abc.ABCMeta)
 class QinlingLister(command.Lister):
     columns = ()
+    filtered_columns = ()
 
     def get_parser(self, prog_name):
         parser = super(QinlingLister, self).get_parser(prog_name)
@@ -129,8 +153,8 @@ class QinlingLister(command.Lister):
             help=_(
                 'Filters for resource query that can be repeated. Supported '
                 'operands: eq, neq, in, nin, gt, gte, lt, lte, has. '
-                'E.g. --filter key="neq:123". The available keys are {0}'
-            ).format(self.columns)
+                'E.g. --filter key="neq:123". The available keys: {0}'
+            ).format(self.filtered_columns)
         )
 
         return parser

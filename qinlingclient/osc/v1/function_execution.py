@@ -22,6 +22,7 @@ from qinlingclient import utils as q_utils
 
 class List(base.QinlingLister):
     columns = base.EXECUTION_COLUMNS
+    filtered_columns = base.FILTERED_EXECUTION_COLUMNS
 
     def _get_resources(self, parsed_args):
         client = self.app.client_manager.function_engine
