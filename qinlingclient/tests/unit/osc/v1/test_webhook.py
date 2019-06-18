@@ -32,7 +32,8 @@ class TestWebhook(fakes.TestQinlingClient):
         self.columns = base.WEBHOOK_COLUMNS
         self.data = []
 
-        self._webhooks = fakes.FakeWebhook.create_webhooks(count=3)
+        webhooks = fakes.FakeWebhook.create_webhooks(count=3)
+        self._webhooks = webhooks
         for w in self._webhooks:
             self.data.append((w.id, w.function_id, w.function_version,
                               w.description, w.project_id,
@@ -192,7 +193,7 @@ class TestCreateWebhook(TestWebhook):
         arglist = [function_id, '--function-version', 'NOT_A_INTEGER']
         verifylist = [
             ('function', function_id),
-            ('function_version', 0),
+            ('function_version', 'NOT_A_INTEGER'),
             ('description', None),
         ]
 
@@ -327,7 +328,7 @@ class TestUpdateWebhook(TestWebhook):
         verifylist = [
             ('id', webhook_id),
             ('function_id', None),
-            ('function_version', 0),
+            ('function_version', None),
             ('description', None),
         ]
 
@@ -337,7 +338,7 @@ class TestUpdateWebhook(TestWebhook):
         self.client.webhooks.update.assert_called_once_with(
             webhook_id,
             **{'function_id': None,
-               'function_version': 0,
+               'function_version': None,
                'description': None}
         )
         self.assertEqual(self.columns, columns)
@@ -359,7 +360,7 @@ class TestUpdateWebhook(TestWebhook):
         verifylist = [
             ('id', webhook_id),
             ('function_id', function_id),
-            ('function_version', 1),
+            ('function_version', str(function_version)),
             ('description', webhook_description),
         ]
 
@@ -369,7 +370,7 @@ class TestUpdateWebhook(TestWebhook):
         self.client.webhooks.update.assert_called_once_with(
             webhook_id,
             **{'function_id': function_id,
-               'function_version': 1,
+               'function_version': str(function_version),
                'description': webhook_description}
         )
         self.assertEqual(self.columns, columns)
@@ -378,12 +379,14 @@ class TestUpdateWebhook(TestWebhook):
     def test_webhook_update_version_not_integer(self):
         # function_version should be an integer value
         webhook_id = self._webhooks[0].id
+        function_id = self._webhooks[0].function_id
 
-        arglist = [webhook_id, '--function-version', 'NOT_A_INTEGER']
+        arglist = [webhook_id, function_id,
+                   '--function-version', 'NOT_A_INTEGER']
         verifylist = [
             ('id', webhook_id),
-            ('function', None),
-            ('function_version', 0),
+            ('function_id', function_id),
+            ('function_version', 'NOT_A_INTEGER'),
             ('description', None),
         ]
 

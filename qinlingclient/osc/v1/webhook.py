@@ -124,9 +124,7 @@ class Update(command.ShowOne):
         )
         parser.add_argument(
             "--function-version",
-            type=int,
-            default=0,
-            help="Function version number. Default: 0",
+            help="Function version number.",
         )
         parser.add_argument(
             "--description",

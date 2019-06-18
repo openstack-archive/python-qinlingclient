@@ -1,0 +1,4 @@
+---
+fixes:
+  - Webhook function_version will not be reset automatically to 0 during
+    an update.
