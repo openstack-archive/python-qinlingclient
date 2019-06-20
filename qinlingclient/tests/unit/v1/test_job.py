@@ -12,8 +12,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import json
 import uuid
+
+from oslo_serialization import jsonutils
 
 from qinlingclient.common import exceptions
 from qinlingclient.tests.unit.v1 import test_client
@@ -61,7 +62,7 @@ class TestJob(test_client.TestQinlingClient):
         )
         ret = self.client.jobs.create(function_id)
         self.assertEqual(JOB_1, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_create_job_all_options(self):
@@ -91,7 +92,7 @@ class TestJob(test_client.TestQinlingClient):
             first_execution_time=first_execution_time, pattern=pattern,
             function_input=function_input, count=count)
         self.assertEqual(JOB_1, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_create_job_error(self):
@@ -188,7 +189,7 @@ class TestJob(test_client.TestQinlingClient):
         )
         ret = self.client.jobs.update(job_id, name=name, pattern=pattern)
         self.assertEqual(JOB_2, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_update_job_error(self):

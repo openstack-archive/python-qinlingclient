@@ -12,8 +12,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import json
 import uuid
+
+from oslo_serialization import jsonutils
 
 from qinlingclient.common import exceptions
 from qinlingclient.tests.unit.v1 import test_client
@@ -61,7 +62,7 @@ class TestFunctionVersion(test_client.TestQinlingClient):
         )
         ret = self.client.function_versions.create(function_id)
         self.assertEqual(VERSION_1, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_create_function_version_all_options(self):
@@ -78,7 +79,7 @@ class TestFunctionVersion(test_client.TestQinlingClient):
         ret = self.client.function_versions.create(
             function_id, description=description)
         self.assertEqual(VERSION_1, ret.to_dict())
-        self.assertEqual(json.dumps(request_data),
+        self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
 
     def test_create_function_version_error(self):
