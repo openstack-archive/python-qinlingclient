@@ -332,29 +332,28 @@ class Update(command.ShowOne):
             help="Function entry in the format of <module_name>.<method_name>"
         )
 
-        package_group = parser.add_argument_group('package_group')
-        swift_group = parser.add_argument_group('swift_group')
-
-        group = package_group.add_mutually_exclusive_group()
-        group.add_argument(
+        package_group = parser.add_mutually_exclusive_group()
+        package_group.add_argument(
             "--file",
             metavar="CODE_FILE_PATH",
             help="Code file path."
         )
-        group.add_argument(
+        package_group.add_argument(
             "--package",
             metavar="CODE_PACKAGE_PATH",
             help="Code package zip file path."
         )
 
-        swift_group.add_argument(
+        # For swift functions
+        parser.add_argument(
             "--container",
             help="Container name in Swift.",
         )
-        swift_group.add_argument(
+        parser.add_argument(
             "--object",
             help="Object name in Swift.",
         )
+
         parser.add_argument(
             "--cpu",
             type=q_utils.check_positive,
