@@ -21,6 +21,7 @@ from qinlingclient.tests.unit.v1 import test_client
 
 WEBHOOK_1 = {'id': str(uuid.uuid4()), 'function_id': str(uuid.uuid4())}
 WEBHOOK_2 = {'id': str(uuid.uuid4()), 'function_id': str(uuid.uuid4())}
+WEBHOOK_3 = {'id': str(uuid.uuid4()), 'function_alias': 'alias_1'}
 
 LIST_WEBHOOKS_RESP = {
     'webhooks': [WEBHOOK_1, WEBHOOK_2]
@@ -61,7 +62,8 @@ class TestWebhook(test_client.TestQinlingClient):
 
     def test_create_webhook(self):
         function_id = WEBHOOK_1['function_id']
-        request_data = {'function_id': function_id, 'function_version': 0}
+        request_data = {'function_id': function_id, 'function_version': 0,
+                        'function_alias': None}
         self.requests_mock.register_uri(
             'POST',
             test_client.QINLING_URL + '/v1/webhooks',
@@ -80,6 +82,7 @@ class TestWebhook(test_client.TestQinlingClient):
         description = 'A newly created webhook'
         request_data = {'function_id': function_id,
                         'function_version': function_version,
+                        'function_alias': None,
                         'description': description}
 
         self.requests_mock.register_uri(

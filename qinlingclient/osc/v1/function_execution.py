@@ -37,8 +37,7 @@ class Create(command.ShowOne):
         parser = super(Create, self).get_parser(prog_name)
 
         parser.add_argument(
-            "function",
-            metavar='FUNCTION',
+            "--function",
             help="Function name or ID.",
         )
         parser.add_argument(
@@ -46,6 +45,12 @@ class Create(command.ShowOne):
             type=int,
             default=0,
             help="Function version number.",
+        )
+        parser.add_argument(
+            "--function-alias",
+            help="Function alias which corresponds to a specific function and "
+                 "version. When function alias is specified, function and "
+                 "function version are not needed.",
         )
         parser.add_argument(
             "--input",
@@ -72,15 +77,22 @@ class Create(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.function_engine
 
-        function = parsed_args.function
-        if not uuidutils.is_uuid_like(function):
-            # Try to find the function id with name
-            function = q_utils.find_resource_id_by_name(
-                client.functions, function)
+        function_alias = parsed_args.function_alias
+        if function_alias:
+            function_id = None
+            function_version = None
+        else:
+            function_version = parsed_args.function_version
+            function_id = parsed_args.function
+            if not uuidutils.is_uuid_like(function_id):
+                # Try to find the function id with name
+                function_id = q_utils.find_resource_id_by_name(
+                    client.functions, function_id)
 
         execution = client.function_executions.create(
-            function=function,
-            version=parsed_args.function_version,
+            function_alias=function_alias,
+            function_id=function_id,
+            function_version=function_version,
             sync=parsed_args.sync,
             input=parsed_args.input
         )

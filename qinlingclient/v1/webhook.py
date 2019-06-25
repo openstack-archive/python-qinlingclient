@@ -33,10 +33,12 @@ class WebhookManager(base.Manager):
             url += '?%s' % q_params
         return self._list(url, response_key='webhooks')
 
-    def create(self, function_id, function_version=0, description=None):
+    def create(self, function_id, function_alias=None, function_version=0,
+               description=None):
         data = {
             'function_id': function_id,
             'function_version': function_version,
+            'function_alias': function_alias
         }
         if description:
             data.update({'description': description})

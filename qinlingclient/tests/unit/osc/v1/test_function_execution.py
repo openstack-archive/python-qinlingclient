@@ -34,9 +34,9 @@ class TestFunctionExecution(fakes.TestQinlingClient):
 
         self._executions = fakes.FakeExecution.create_executions(count=3)
         for e in self._executions:
-            self.data.append((e.id, e.function_id, e.function_version,
-                              e.description, e.input, e.result,
-                              e.status, e.sync, e.project_id,
+            self.data.append((e.id, e.function_alias, e.function_id,
+                              e.function_version, e.description, e.input,
+                              e.result, e.status, e.sync, e.project_id,
                               e.created_at, e.updated_at))
 
 
@@ -105,33 +105,22 @@ class TestCreateFunctionExecution(TestFunctionExecution):
         # Allow to fake different create results
         e = fakes.FakeExecution.create_one_execution(attrs)
         self.client.function_executions.create = mock.Mock(return_value=e)
-        data = (e.id, e.function_id, e.function_version, e.description,
-                e.input, e.result, e.status, e.sync,
+        data = (e.id, e.function_alias, e.function_id, e.function_version,
+                e.description, e.input, e.result, e.status, e.sync,
                 e.project_id, e.created_at, e.updated_at)
         return data
 
-    def test_function_execution_create_no_option(self):
-        arglist = []
-        verifylist = []
-
-        self.assertRaises(osc_tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd, arglist, verifylist)
-
-    def test_function_execution_create_required_options(self):
-        """Create a function execution.
-
-        1. use function_id,
-        2. all other params except the required ones are not set.
-        """
+    def test_function_execution_create_function_id(self):
+        """Create a function execution with function id."""
         function_id = self._executions[0].function_id
         attrs = {'function_id': function_id}
         created_data = self._create_fake_execution(attrs)
 
-        arglist = [function_id]
+        arglist = ['--function', function_id]
         verifylist = [
             ('function', function_id),
             ('function_version', 0),
+            ('function_alias', None),
             ('input', None),
             ('sync', True),
         ]
@@ -139,16 +128,17 @@ class TestCreateFunctionExecution(TestFunctionExecution):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.client.function_executions.create.assert_called_once_with(**{
-            'function': function_id,
-            'version': 0,
-            'sync': True,
-            'input': None,
-        })
+        self.client.function_executions.create.assert_called_once_with(
+            **{'function_alias': None,
+               'function_id': function_id,
+               'function_version': 0,
+               'sync': True,
+               'input': None}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
 
-    def test_function_execution_create_all_options(self):
+    def test_function_execution_create_function_name(self):
         """Create a function execution.
 
         1. use function name to find the function_id,
@@ -169,11 +159,12 @@ class TestCreateFunctionExecution(TestFunctionExecution):
         # Use to find the function id with its name
         self.client.functions.find.return_value = function
 
-        arglist = [function_name, '--function-version', str(function_version),
-                   '--input', function_input, '--async']
+        arglist = ['--function', function_name, '--function-version',
+                   str(function_version), '--input', function_input, '--async']
         verifylist = [
             ('function', function_name),
             ('function_version', function_version),
+            ('function_alias', None),
             ('input', function_input),
             ('sync', is_sync),
         ]
@@ -181,20 +172,55 @@ class TestCreateFunctionExecution(TestFunctionExecution):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.client.function_executions.create.assert_called_once_with(**{
-            'function': function_id,
-            'version': function_version,
-            'sync': is_sync,
-            'input': function_input,
-        })
+        self.client.function_executions.create.assert_called_once_with(
+            **{'function_alias': None,
+               'function_id': function_id,
+               'function_version': function_version,
+               'sync': is_sync,
+               'input': function_input}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
 
         self.client.functions.find.assert_called_once_with(name=function_name)
 
+    def test_function_execution_create_function_alias(self):
+        """Create a function execution with function alias."""
+        function_alias = 'fake_alias'
+        function_input = '{"JSON_INPUT_KEY": "JSON_INPUT_VALUE"}'
+        is_sync = False
+        attrs = {'function_alias': function_alias,
+                 'input': function_input,
+                 'sync': is_sync}
+        created_data = self._create_fake_execution(attrs)
+
+        arglist = ['--function-alias', function_alias,
+                   '--input', function_input, '--async']
+        verifylist = [
+            ('function', None),
+            ('function_version', 0),
+            ('function_alias', function_alias),
+            ('input', function_input),
+            ('sync', is_sync),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.client.function_executions.create.assert_called_once_with(
+            **{'function_alias': function_alias,
+               'function_id': None,
+               'function_version': None,
+               'input': function_input,
+               'sync': is_sync}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(created_data, data)
+
     def test_function_execution_create_sync_async_mutually_exclusive(self):
+        function_id = self._executions[0].function_id
         # --sync and --async are mutually exclusive
-        arglist = [self._executions[0].function_id, '--sync', '--async']
+        arglist = ['--function', function_id, '--sync', '--async']
         verifylist = [
             ('function', self._executions[0].function_id),
             ('function_version', 0),
@@ -208,10 +234,11 @@ class TestCreateFunctionExecution(TestFunctionExecution):
 
     def test_function_execution_create_version_not_integer(self):
         # function_version should be an integer value
-        arglist = [self._executions[0].function_id,
+        function_id = self._executions[0].function_id
+        arglist = ['--function', function_id,
                    '--function-version', 'NOT_A_INTEGER']
         verifylist = [
-            ('function', self._executions[0].function_id),
+            ('function', function_id),
             ('function_version', 0),
             ('input', None),
             ('sync', True),

@@ -21,6 +21,7 @@ from qinlingclient.tests.unit.v1 import test_client
 
 EXECUTION_1 = {'id': str(uuid.uuid4()), 'function_id': str(uuid.uuid4())}
 EXECUTION_2 = {'id': str(uuid.uuid4()), 'function_id': str(uuid.uuid4())}
+EXECUTION_3 = {'id': str(uuid.uuid4()), 'function_alias': 'alias_1'}
 
 LIST_FUNCTION_EXECUTIONS_RESP = {
     'executions': [EXECUTION_1, EXECUTION_2]
@@ -63,7 +64,7 @@ class TestFunctionExecution(test_client.TestQinlingClient):
     def test_create_function_execution(self):
         function_id = EXECUTION_1['function_id']
         request_data = {'function_id': function_id, 'function_version': 0,
-                        'sync': True, 'input': None}
+                        'function_alias': None, 'sync': True, 'input': None}
         self.requests_mock.register_uri(
             'POST',
             test_client.QINLING_URL + '/v1/executions',
@@ -83,6 +84,7 @@ class TestFunctionExecution(test_client.TestQinlingClient):
         function_input = '{"name": "Qinling"}'
         request_data = {'function_id': function_id,
                         'function_version': function_version,
+                        'function_alias': None,
                         'sync': sync, 'input': function_input}
         self.requests_mock.register_uri(
             'POST',
@@ -92,7 +94,7 @@ class TestFunctionExecution(test_client.TestQinlingClient):
             status_code=201
         )
         ret = self.client.function_executions.create(
-            function_id, version=function_version, sync=sync,
+            function_id, function_version=function_version, sync=sync,
             input=function_input)
         self.assertEqual(EXECUTION_1, ret.to_dict())
         self.assertEqual(jsonutils.dumps(request_data),

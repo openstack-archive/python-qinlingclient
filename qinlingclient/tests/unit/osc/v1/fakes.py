@@ -253,6 +253,7 @@ class FakeExecution(object):
         # Set default attributes.
         execution_attrs = {
             'id': str(uuid.uuid4()),
+            'function_alias': None,
             'function_id': str(uuid.uuid4()),
             'function_version': 0,
             'description': 'execution-description-' + uuid.uuid4().hex,
@@ -560,6 +561,7 @@ class FakeWebhook(object):
         # Set default attributes.
         webhook_attrs = {
             'id': str(uuid.uuid4()),
+            'function_alias': None,
             'function_id': str(uuid.uuid4()),
             'function_version': 0,
             'description': 'webhook-description-' + uuid.uuid4().hex,

@@ -35,8 +35,8 @@ class TestWebhook(fakes.TestQinlingClient):
         webhooks = fakes.FakeWebhook.create_webhooks(count=3)
         self._webhooks = webhooks
         for w in self._webhooks:
-            self.data.append((w.id, w.function_id, w.function_version,
-                              w.description, w.project_id,
+            self.data.append((w.id, w.function_alias, w.function_id,
+                              w.function_version, w.description, w.project_id,
                               w.created_at, w.updated_at,
                               w.webhook_url))
 
@@ -105,32 +105,22 @@ class TestCreateWebhook(TestWebhook):
         # Allow to fake different create results
         w = fakes.FakeWebhook.create_one_webhook(attrs)
         self.client.webhooks.create = mock.Mock(return_value=w)
-        data = (w.id, w.function_id, w.function_version, w.description,
-                w.project_id, w.created_at, w.updated_at, w.webhook_url)
+        data = (w.id, w.function_alias, w.function_id, w.function_version,
+                w.description, w.project_id, w.created_at, w.updated_at,
+                w.webhook_url)
         return data
 
-    def test_webhook_create_no_option(self):
-        arglist = []
-        verifylist = []
-
-        self.assertRaises(osc_tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd, arglist, verifylist)
-
-    def test_webhook_create_required_options(self):
-        """Create a webhook.
-
-        1. use function_id,
-        2. all other params except the required ones are not set.
-        """
+    def test_webhook_create_function_id(self):
+        """Create a webhook with function id."""
         function_id = self._webhooks[0].function_id
         attrs = {'function_id': function_id}
         created_data = self._create_fake_webhook(attrs)
 
-        arglist = [function_id]
+        arglist = ['--function', function_id]
         verifylist = [
             ('function', function_id),
             ('function_version', 0),
+            ('function_alias', None),
             ('description', None),
         ]
 
@@ -140,12 +130,13 @@ class TestCreateWebhook(TestWebhook):
         self.client.webhooks.create.assert_called_once_with(
             **{'function_id': function_id,
                'function_version': 0,
+               'function_alias': None,
                'description': None}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
 
-    def test_webhook_create_all_options(self):
+    def test_webhook_create_function_name(self):
         """Create a webhook.
 
         1. use function name to find the function_id,
@@ -164,12 +155,13 @@ class TestCreateWebhook(TestWebhook):
         # Use to find the function id with its name
         self.client.functions.find.return_value = function
 
-        arglist = [function_name,
+        arglist = ['--function', function_name,
                    '--function-version', str(function_version),
                    '--description', webhook_description]
         verifylist = [
             ('function', function_name),
             ('function_version', function_version),
+            ('function_alias', None),
             ('description', webhook_description),
         ]
 
@@ -179,12 +171,39 @@ class TestCreateWebhook(TestWebhook):
         self.client.webhooks.create.assert_called_once_with(
             **{'function_id': function_id,
                'function_version': function_version,
+               'function_alias': None,
                'description': webhook_description}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
 
         self.client.functions.find.assert_called_once_with(name=function_name)
+
+    def test_webhook_create_function_alias(self):
+        """Create a webhook with function alias."""
+        function_alias = 'fake_alias'
+        attrs = {'function_alias': function_alias}
+        created_data = self._create_fake_webhook(attrs)
+
+        arglist = ['--function-alias', function_alias]
+        verifylist = [
+            ('function', None),
+            ('function_version', 0),
+            ('function_alias', function_alias),
+            ('description', None),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.client.webhooks.create.assert_called_once_with(
+            **{'function_id': None,
+               'function_version': None,
+               'function_alias': function_alias,
+               'description': None}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(created_data, data)
 
     def test_webhook_create_version_not_integer(self):
         # function_version should be an integer value
@@ -303,8 +322,9 @@ class TestUpdateWebhook(TestWebhook):
         # Allow to fake different update results
         w = fakes.FakeWebhook.create_one_webhook(attrs)
         self.client.webhooks.update = mock.Mock(return_value=w)
-        data = (w.id, w.function_id, w.function_version, w.description,
-                w.project_id, w.created_at, w.updated_at, w.webhook_url)
+        data = (w.id, w.function_alias, w.function_id, w.function_version,
+                w.description, w.project_id, w.created_at, w.updated_at,
+                w.webhook_url)
         return data
 
     def test_webhook_update_no_option(self):

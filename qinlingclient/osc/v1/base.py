@@ -59,6 +59,7 @@ FILTERED_FUNCTION_COLUMNS = (
 )
 EXECUTION_COLUMNS = (
     'id',
+    'function_alias',
     'function_id',
     'function_version',
     'description',
@@ -103,6 +104,7 @@ WORKER_COLUMNS = (
 )
 WEBHOOK_COLUMNS = (
     'id',
+    'function_alias',
     'function_id',
     'function_version',
     'description',
