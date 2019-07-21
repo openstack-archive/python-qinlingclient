@@ -23,6 +23,11 @@ JOB_1 = {'id': str(uuid.uuid4()), 'name': 'job_1',
          'function_id': str(uuid.uuid4())}
 JOB_2 = {'id': str(uuid.uuid4()), 'name': 'job_2',
          'function_id': JOB_1['function_id']}
+JOB_3 = {
+    'id': str(uuid.uuid4()),
+    'name': 'job_2',
+    'function_alias': 'alias_1',
+}
 
 LIST_JOBS_RESP = {
     'jobs': [JOB_1, JOB_2]
@@ -49,7 +54,8 @@ class TestJob(test_client.TestQinlingClient):
 
     def test_create_job(self):
         function_id = JOB_1['function_id']
-        request_data = {'function_id': function_id, 'function_version': 0,
+        request_data = {'function_alias': None, 'function_id': function_id,
+                        'function_version': 0,
                         'name': None, 'first_execution_time': None,
                         'pattern': None, 'function_input': None,
                         'count': None}
@@ -60,7 +66,9 @@ class TestJob(test_client.TestQinlingClient):
             json=JOB_1,
             status_code=201
         )
-        ret = self.client.jobs.create(function_id)
+
+        ret = self.client.jobs.create(function_id=function_id)
+
         self.assertEqual(JOB_1, ret.to_dict())
         self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)
@@ -73,7 +81,8 @@ class TestJob(test_client.TestQinlingClient):
         pattern = '0 * * * *'
         function_input = '{"name": "Qinling"}'
         count = 3
-        request_data = {'function_id': function_id,
+        request_data = {'function_alias': None,
+                        'function_id': function_id,
                         'function_version': function_version,
                         'name': name,
                         'first_execution_time': first_execution_time,
@@ -87,10 +96,13 @@ class TestJob(test_client.TestQinlingClient):
             json=JOB_1,
             status_code=201
         )
+
         ret = self.client.jobs.create(
-            function_id, function_version=function_version, name=name,
+            function_id=function_id, function_version=function_version,
+            name=name,
             first_execution_time=first_execution_time, pattern=pattern,
             function_input=function_input, count=count)
+
         self.assertEqual(JOB_1, ret.to_dict())
         self.assertEqual(jsonutils.dumps(request_data),
                          self.requests_mock.last_request.text)

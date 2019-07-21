@@ -25,10 +25,11 @@ class JobManager(base.Manager):
     def list(self, **kwargs):
         return self._list("/v1/jobs", response_key='jobs')
 
-    def create(self, function_id, function_version=0, name=None,
-               first_execution_time=None, pattern=None, function_input=None,
-               count=None):
+    def create(self, function_alias=None, function_id=None, function_version=0,
+               name=None, first_execution_time=None, pattern=None,
+               function_input=None, count=None):
         body = {
+            "function_alias": function_alias,
             "function_id": function_id,
             "function_version": function_version,
             "name": name,

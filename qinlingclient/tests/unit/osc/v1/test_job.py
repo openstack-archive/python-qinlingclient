@@ -36,6 +36,7 @@ class TestJob(fakes.TestQinlingClient):
         self._jobs = fakes.FakeJob.create_jobs(count=3)
         for j in self._jobs:
             self.data.append((j.id, j.name, j.count, j.status,
+                              j.function_alias,
                               j.function_id, j.function_version,
                               j.function_input, j.pattern,
                               j.first_execution_time, j.next_execution_time,
@@ -107,34 +108,24 @@ class TestCreateJob(TestJob):
         j = fakes.FakeJob.create_one_job(attrs)
         self.client.jobs.create = mock.Mock(return_value=j)
         data = (j.id, j.name, j.count, j.status,
+                j.function_alias,
                 j.function_id, j.function_version,
                 j.function_input, j.pattern,
                 j.first_execution_time, j.next_execution_time,
                 j.project_id, j.created_at, j.updated_at)
         return data
 
-    def test_job_create_no_option(self):
-        arglist = []
-        verifylist = []
-
-        self.assertRaises(osc_tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd, arglist, verifylist)
-
-    def test_job_create_required_options(self):
-        """Create a job.
-
-        1. use function_id,
-        2. all other params except the required ones are not set.
-        """
+    def test_job_create_function_id(self):
+        """Create a job with function id."""
         function_id = self._jobs[0].function_id
         attrs = {'function_id': function_id}
         created_data = self._create_fake_job(attrs)
 
-        arglist = [function_id]
+        arglist = ['--function', function_id]
         verifylist = [
             ('function', function_id),
             ('function_version', 0),
+            ('function_alias', None),
             ('name', None),
             ('first_execution_time', None),
             ('pattern', None),
@@ -146,8 +137,8 @@ class TestCreateJob(TestJob):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.client.jobs.create.assert_called_once_with(
-            function_id,
-            **{'function_version': 0,
+            **{'function_alias': None,
+               'function_id': function_id, 'function_version': 0,
                'name': None,
                'first_execution_time': None,
                'pattern': None,
@@ -157,7 +148,7 @@ class TestCreateJob(TestJob):
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
 
-    def test_job_create_all_options(self):
+    def test_job_create_function_name(self):
         """Create a job.
 
         1. use function name to find the function_id,
@@ -184,7 +175,7 @@ class TestCreateJob(TestJob):
         # Use to find the function id with its name
         self.client.functions.find.return_value = function
 
-        arglist = [function_name,
+        arglist = ['--function', function_name,
                    '--function-version', str(function_version),
                    '--name', job_name,
                    '--first-execution-time', first_execution_time,
@@ -194,6 +185,7 @@ class TestCreateJob(TestJob):
         verifylist = [
             ('function', function_name),
             ('function_version', function_version),
+            ('function_alias', None),
             ('name', job_name),
             ('first_execution_time', first_execution_time),
             ('pattern', pattern),
@@ -205,8 +197,8 @@ class TestCreateJob(TestJob):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.client.jobs.create.assert_called_once_with(
-            function_id,
-            **{'function_version': function_version,
+            **{'function_alias': None, 'function_id': function_id,
+               'function_version': function_version,
                'name': job_name,
                'first_execution_time': first_execution_time,
                'pattern': pattern,
@@ -218,11 +210,45 @@ class TestCreateJob(TestJob):
 
         self.client.functions.find.assert_called_once_with(name=function_name)
 
+    def test_job_create_function_alias(self):
+        """Create a job with function alias."""
+        function_alias = 'fake_alias'
+        attrs = {'function_alias': function_alias}
+        created_data = self._create_fake_job(attrs)
+
+        arglist = ['--function-alias', function_alias]
+        verifylist = [
+            ('function', None),
+            ('function_version', 0),
+            ('function_alias', function_alias),
+            ('name', None),
+            ('first_execution_time', None),
+            ('pattern', None),
+            ('function_input', None),
+            ('count', None),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.client.jobs.create.assert_called_once_with(
+            **{'function_alias': function_alias,
+               'function_id': None, 'function_version': None,
+               'name': None,
+               'first_execution_time': None,
+               'pattern': None,
+               'function_input': None,
+               'count': None}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(created_data, data)
+
     def test_job_create_version_not_integer(self):
         # function_version should be an integer value
         function_id = self._jobs[0].function_id
 
-        arglist = [function_id, '--function-version', 'NOT_A_INTEGER']
+        arglist = ['--function', function_id, '--function-version',
+                   'NOT_A_INTEGER']
         verifylist = [
             ('function', function_id),
             ('function_version', 0),
@@ -241,7 +267,7 @@ class TestCreateJob(TestJob):
         # count should be an integer value
         function_id = self._jobs[0].function_id
 
-        arglist = [function_id, '--count', 'NOT_A_INTEGER']
+        arglist = ['--function', function_id, '--count', 'NOT_A_INTEGER']
         verifylist = [
             ('function', function_id),
             ('function_version', 0),
@@ -357,6 +383,7 @@ class TestUpdateJob(TestJob):
         j = fakes.FakeJob.create_one_job(attrs)
         self.client.jobs.update = mock.Mock(return_value=j)
         data = (j.id, j.name, j.count, j.status,
+                j.function_alias,
                 j.function_id, j.function_version,
                 j.function_input, j.pattern,
                 j.first_execution_time, j.next_execution_time,

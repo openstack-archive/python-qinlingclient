@@ -485,6 +485,7 @@ class FakeJob(object):
             'name': 'job-name-' + uuid.uuid4().hex,
             'count': 3,
             'status': 'RUNNING',
+            'function_alias': None,
             'function_id': str(uuid.uuid4()),
             'function_version': 0,
             'function_input': '{"FAKE_INPUT_KEY": "FAKE_INPUT_VALUE"}',

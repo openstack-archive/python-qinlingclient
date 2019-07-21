@@ -82,6 +82,7 @@ JOB_COLUMNS = (
     'name',
     'count',
     'status',
+    'function_alias',
     'function_id',
     'function_version',
     'function_input',
