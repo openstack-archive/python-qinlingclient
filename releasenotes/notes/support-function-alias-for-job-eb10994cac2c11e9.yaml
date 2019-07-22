@@ -1,0 +1,4 @@
+features:
+  - Support ``--function-alias`` for creating jobs, change the positional
+    argument of function to optional ``--function``, so that the end user can
+    either specify a function alias or a function identifier to create job.
