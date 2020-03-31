@@ -307,7 +307,7 @@ class TestDeleteFunctionExecution(TestFunctionExecution):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to delete the specified execution\(s\)\.$',
+            r'^Unable to delete the specified execution\(s\)\.$',
             self.cmd.take_action, parsed_args)
 
         # The second deletion failed, but the third is done normally

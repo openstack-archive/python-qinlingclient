@@ -335,7 +335,7 @@ class TestDeleteJob(TestJob):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to delete the specified job\(s\)\.$',
+            r'^Unable to delete the specified job\(s\)\.$',
             self.cmd.take_action, parsed_args)
 
         # The second deleteion failed, but the third is done normally

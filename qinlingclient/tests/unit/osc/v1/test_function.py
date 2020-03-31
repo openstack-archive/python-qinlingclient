@@ -53,7 +53,7 @@ class TestFunctionUtils(testtools.TestCase):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            "^Package %s is not a valid ZIP file\.$" % package_path,
+            r"^Package %s is not a valid ZIP file\.$" % package_path,
             function._get_package_file, package_path=package_path)
 
         is_zipfile_mock.assert_called_once_with(package_path)
@@ -69,7 +69,7 @@ class TestFunctionUtils(testtools.TestCase):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Package file size must be no more than %sM\.$' % (
+            r'^Package file size must be no more than %sM\.$' % (
                 function.MAX_ZIP_SIZE / 1024 / 1024),
             function._get_package_file, package_path=package_path)
 
@@ -114,7 +114,7 @@ class TestFunctionUtils(testtools.TestCase):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            "^File %s not exist\.$" % file_path,
+            r"^File %s not exist\.$" % file_path,
             function._get_package_file, file_path=file_path)
 
         isfile_mock.assert_called_once_with(file_path)
@@ -141,7 +141,7 @@ class TestFunctionUtils(testtools.TestCase):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Package file size must be no more than %sM\.$' % (
+            r'^Package file size must be no more than %sM\.$' % (
                 function.MAX_ZIP_SIZE / 1024 / 1024),
             function._get_package_file, file_path=file_path)
 
@@ -442,7 +442,7 @@ class TestCreateFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Runtime needs to be specified for package type function\.$',
+            r'^Runtime needs to be specified for package type function\.$',
             self.cmd.take_action, parsed_args)
 
     def test_function_create_swift_required_options(self):
@@ -546,7 +546,7 @@ class TestCreateFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Container name and object name need to be specified\.$',
+            r'^Container name and object name need to be specified\.$',
             self.cmd.take_action, parsed_args)
 
     def test_function_create_swift_object_needed(self):
@@ -559,7 +559,7 @@ class TestCreateFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Container name and object name need to be specified\.$',
+            r'^Container name and object name need to be specified\.$',
             self.cmd.take_action, parsed_args)
 
     def test_function_create_swift_runtime_needed(self):
@@ -574,7 +574,7 @@ class TestCreateFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Runtime needs to be specified for swift type function\.$',
+            r'^Runtime needs to be specified for swift type function\.$',
             self.cmd.take_action, parsed_args)
 
     def test_function_create_image_required_options(self):
@@ -726,7 +726,7 @@ class TestDeleteFunction(TestFunction):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to delete the specified function\(s\)\.$',
+            r'^Unable to delete the specified function\(s\)\.$',
             self.cmd.take_action, parsed_args)
 
         # The second deletion failed, but the third is done normally
@@ -1154,7 +1154,7 @@ class TestDetachFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to detach the specified function\.$',
+            r'^Unable to detach the specified function\.$',
             self.cmd.take_action, parsed_args)
 
         self.client.functions.detach.assert_called_once_with(function_id)
@@ -1325,7 +1325,7 @@ class TestScaleupFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Worker count must be a positive integer\.$',
+            r'^Worker count must be a positive integer\.$',
             self.check_parser,
             self.cmd, arglist, verifylist)
 
@@ -1336,7 +1336,7 @@ class TestScaleupFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Worker count must be a positive integer\.$',
+            r'^Worker count must be a positive integer\.$',
             self.check_parser,
             self.cmd, arglist, verifylist)
 
@@ -1351,7 +1351,7 @@ class TestScaleupFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to scale up the specified function\.$',
+            r'^Unable to scale up the specified function\.$',
             self.cmd.take_action, parsed_args)
 
         self.client.functions.scaleup.assert_called_once_with(function_id, 1)
@@ -1407,7 +1407,7 @@ class TestScaledownFunction(TestFunction):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to scale down the specified function\.$',
+            r'^Unable to scale down the specified function\.$',
             self.cmd.take_action, parsed_args)
 
         self.client.functions.scaledown.assert_called_once_with(function_id, 1)

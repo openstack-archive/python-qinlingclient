@@ -268,7 +268,7 @@ class TestDeleteFunctionAlias(TestFunctionAlias):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to delete the specified function_alias\(s\)\.$',
+            r'^Unable to delete the specified function_alias\(s\)\.$',
             self.cmd.take_action, parsed_args)
 
         # The second deleteion failed, but the third is done normally

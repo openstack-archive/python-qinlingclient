@@ -274,7 +274,7 @@ class TestDeleteWebhook(TestWebhook):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to delete the specified webhook\(s\)\.$',
+            r'^Unable to delete the specified webhook\(s\)\.$',
             self.cmd.take_action, parsed_args)
 
         # The second deleteion failed, but the third is done normally

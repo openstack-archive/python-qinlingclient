@@ -280,7 +280,7 @@ class TestDetachFunctionVersion(TestFunctionVersion):
 
         self.assertRaisesRegex(
             exceptions.QinlingClientException,
-            '^Unable to detach the specified function version\.$',
+            r'^Unable to detach the specified function version\.$',
             self.cmd.take_action, parsed_args)
 
         self.client.function_versions.detach.assert_called_once_with(
