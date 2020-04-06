@@ -47,6 +47,13 @@ class Create(command.ShowOne):
             help="Runtime description.",
         )
         parser.add_argument(
+            "--private",
+            dest='is_public',
+            action='store_false',
+            help="Create private runtime or not, will create public"
+                 "runtime if not specified",
+        )
+        parser.add_argument(
             "--untrusted",
             dest='trusted',
             action='store_false',
@@ -63,6 +70,7 @@ class Create(command.ShowOne):
             name=parsed_args.name,
             description=parsed_args.description,
             image=parsed_args.image,
+            is_public=parsed_args.is_public,
             trusted=parsed_args.trusted
         )
 

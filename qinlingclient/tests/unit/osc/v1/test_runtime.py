@@ -127,6 +127,7 @@ class TestCreateRuntime(TestRuntime):
             ('name', None),
             ('description', None),
             ('trusted', True),
+            ('is_public', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -137,6 +138,7 @@ class TestCreateRuntime(TestRuntime):
             'description': None,
             'image': image,
             'trusted': True,
+            'is_public': True,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)
@@ -146,14 +148,17 @@ class TestCreateRuntime(TestRuntime):
         name = 'specified-runtime-name'
         description = 'specified-runtime-description'
         trusted = False
+        is_public = False
         attrs = {'image': image, 'name': name,
-                 'description': description, 'trusted': trusted}
+                 'description': description, 'trusted': trusted,
+                 'is_public': is_public}
         created_data = self._create_fake_runtime(attrs)
 
         arglist = [
             '--name', name,
             '--description', description,
             '--untrusted',
+            '--private',
             image,
         ]
         verifylist = [
@@ -161,6 +166,7 @@ class TestCreateRuntime(TestRuntime):
             ('name', name),
             ('description', description),
             ('trusted', trusted),
+            ('is_public', is_public)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -171,6 +177,7 @@ class TestCreateRuntime(TestRuntime):
             'description': description,
             'image': image,
             'trusted': trusted,
+            'is_public': is_public,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(created_data, data)

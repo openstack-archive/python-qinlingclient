@@ -50,7 +50,8 @@ class TestRuntime(test_client.TestQinlingClient):
 
     def test_create_runtime(self):
         image_name = 'image_name'
-        request_data = {'image': image_name, 'trusted': True}
+        request_data = {'image': image_name, 'trusted': True,
+                        'is_public': True}
 
         self.requests_mock.register_uri(
             'POST',
@@ -70,9 +71,11 @@ class TestRuntime(test_client.TestQinlingClient):
         runtime_name = 'runtime_name'
         description = 'A newly created runtime.'
         trusted = False
+        is_public = False
 
         request_data = {'image': image_name, 'trusted': trusted,
-                        'name': runtime_name, 'description': description}
+                        'name': runtime_name, 'is_public': is_public,
+                        'description': description}
         self.requests_mock.register_uri(
             'POST',
             test_client.QINLING_URL + '/v1/runtimes',
@@ -83,7 +86,7 @@ class TestRuntime(test_client.TestQinlingClient):
 
         ret = self.client.runtimes.create(
             image_name, name=runtime_name, description=description,
-            trusted=False
+            trusted=False, is_public = False,
         )
 
         self.assertEqual(RUNTIME_1, ret.to_dict())
