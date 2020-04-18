@@ -14,7 +14,8 @@
 
 import copy
 import hashlib
-import mock
+from unittest import mock
+
 import six
 import uuid
 

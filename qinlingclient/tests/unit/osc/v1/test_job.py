@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 import datetime
-import mock
+from unittest import mock
 
 from osc_lib.tests import utils as osc_tests_utils
 
