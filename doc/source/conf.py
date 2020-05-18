@@ -77,7 +77,7 @@ latex_documents = [
 #intersphinx_mapping = {'http://docs.python.org/': None}
 
 # openstackdocstheme options
-repository_name = 'openstack/python-qinlingclient'
-use_storyboard = True
+openstackdocs_repo_name = 'openstack/python-qinlingclient'
+openstackdocs_use_storyboard = True
 
 autoprogram_cliff_application = 'openstack'

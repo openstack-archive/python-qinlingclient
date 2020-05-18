@@ -272,3 +272,8 @@ texinfo_documents = [
 
 # -- Options for Internationalization output ------------------------------
 locale_dirs = ['locale/']
+
+# openstackdocstheme options
+openstackdocs_repo_name = 'openstack/python-qinlingclient'
+openstackdocs_use_storyboard = True
+openstackdocs_auto_name = False
