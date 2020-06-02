@@ -21,8 +21,6 @@
 Installation script for python-qinlingclient's development virtualenv
 """
 
-from __future__ import print_function
-
 import os
 import sys
 
