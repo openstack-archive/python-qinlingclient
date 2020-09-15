@@ -16,7 +16,6 @@ import copy
 import hashlib
 from unittest import mock
 
-import six
 import uuid
 
 from osc_lib.tests import utils
@@ -156,7 +155,7 @@ class FakeFunction(object):
     @staticmethod
     def get_fake_md5():
         content = uuid.uuid4().hex
-        if not isinstance(content, six.binary_type):
+        if not isinstance(content, bytes):
             content = content.encode('utf-8')
         return hashlib.md5(content).hexdigest()
 

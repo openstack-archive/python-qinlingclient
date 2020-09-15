@@ -17,7 +17,6 @@ import textwrap
 
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from qinlingclient.common import exceptions
 from qinlingclient.i18n import _
@@ -142,8 +141,7 @@ FILTERED_FUNCTION_ALIAS_COLUMNS = (
 )
 
 
-@six.add_metaclass(abc.ABCMeta)
-class QinlingLister(command.Lister):
+class QinlingLister(command.Lister, metaclass=abc.ABCMeta):
     columns = ()
     filtered_columns = ()
 

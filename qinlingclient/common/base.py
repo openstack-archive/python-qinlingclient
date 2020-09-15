@@ -20,7 +20,6 @@ Base utilities to build API operation managers and objects on top of.
 import abc
 import copy
 
-import six
 
 from qinlingclient.common import exceptions
 
@@ -120,8 +119,7 @@ class Manager(object):
         return self.resource_class(self, body)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ManagerWithFind(Manager):
+class ManagerWithFind(Manager, metaclass=abc.ABCMeta):
     """Manager with additional `find()`/`findall()` methods."""
 
     @abc.abstractmethod

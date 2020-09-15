@@ -12,8 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import six
-from six.moves.urllib.parse import urlencode
+import io
+from urllib.parse import urlencode
 import uuid
 
 from oslo_serialization import jsonutils
@@ -80,7 +80,7 @@ class TestFunction(test_client.TestQinlingClient):
         runtime_id = 'runtime_id'
         code = {'source': 'package', 'md5sum': 'MD5SUM'}
         package_content = 'package file content'
-        package = six.StringIO(package_content)
+        package = io.StringIO(package_content)
         cpu = '100'
         memory_size = '33554432'
         data = {'runtime_id': runtime_id, 'code': jsonutils.dumps(code),
@@ -216,7 +216,7 @@ class TestFunction(test_client.TestQinlingClient):
         function_id = FUNCTION_2['id']
         code = {'source': 'package'}
         package_content = 'updated package file content'
-        package = six.StringIO(package_content)
+        package = io.StringIO(package_content)
         cpu = '100'
         memory_size = '33554432'
         data = {'source': 'package', 'cpu': cpu, 'memory_size': memory_size}
