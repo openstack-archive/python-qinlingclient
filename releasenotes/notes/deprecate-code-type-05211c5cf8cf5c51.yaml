@@ -1,4 +1,0 @@
----
-deprecations:
-  - The param ``--code-type`` of function creation command is deprecated, the
-    actual code type can be deduced by other given params.

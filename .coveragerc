@@ -1,8 +1,0 @@
-[run]
-source = qinlingclient
-omit =
- .tox/*
- qinlingclient/tests/*
-
-[report]
-ignore_errors = True

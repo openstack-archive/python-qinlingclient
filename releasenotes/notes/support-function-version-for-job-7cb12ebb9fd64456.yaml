@@ -1,4 +1,0 @@
----
-features:
-  - The end user can create job by specifying function version, default value
-    is 0 if it's not provided.
